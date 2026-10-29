@@ -135,7 +135,7 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 22 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 31 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
 
 ## Mejoras de fiabilidad
 
@@ -158,3 +158,19 @@ La ruta /asesor cruza cartera y contexto declarado (objetivo, plazo, meses de re
 Umbrales de revisión: reserva inferior a 3 meses, horizonte de 3 años o menos, una acción por encima del 15%, productos tecnológicos por encima del 30%, un vehículo por encima del 60% y precios de más de 7 días. Son criterios orientativos de la aplicación, no recomendaciones universales ni un test de idoneidad. Un único fondo global no se interpreta como concentración en una empresa. No se calculan pesos si hay posiciones con precios ficticios.
 
 Las categorías son declaradas por el usuario al añadir productos; no se infieren del nombre ni sustituyen la composición real de los fondos. El perfil se guarda aparte en el navegador y no está incluido en la copia JSON de la cartera. Faltan composición subyacente, ingresos, deudas y fiscalidad para un análisis personal completo.
+
+## Plan financiero y objetivos
+
+Mi plan financiero (/plan) registra liquidez, otros activos excluyendo la cartera, principal de deudas, ingresos y gastos mensuales. Los campos vacíos se conservan como datos desconocidos; introduce cero solo cuando corresponda. La cartera se suma una vez al patrimonio neto y la reserva elegida incluye gastos esenciales y cuotas de deuda.
+
+Cada objetivo tiene importe, fecha, liquidez asignada y aportación mensual. El cálculo detecta asignaciones simultáneas superiores a la liquidez tras la reserva y aportaciones superiores al excedente. Proyecta meses de calendario, sin rentabilidad, inflación, impuestos ni liquidación automática de inversiones. Los ingresos futuros inciertos se guardan aparte y no financian el escenario base. El asesor incorpora el plan guardado, no el borrador.
+
+La copia completa de /plan contiene plan y cartera. El perfil de tolerancia del asesor sigue almacenado aparte. Los datos permanecen en el navegador: sin cuentas ni sincronización entre dispositivos.
+
+## Importación CSV de operaciones
+
+En Mi cartera puedes descargar una plantilla e importar operaciones con vista previa. Cabecera exacta: date;isin;type;amount;units;fee. Fechas AAAA-MM-DD. Tipos BUY, SELL, DIVIDEND. Importes EUR sin separadores de miles; acepta coma o punto decimal y campos entre comillas. Registra primero los productos por ISIN y sus precios.
+
+Ejemplo de formato, no datos reales: 2026-10-20;IE00BYX5NX33;BUY;100;10;1. Los dividendos deben ser netos, sin participaciones ni comisión. La vista previa valida el saldo de participaciones antes de confirmar. Máximo 5000 filas y 2 MB. Las filas repetidas se rechazan y los identificadores permiten detectar la reimportación de archivos iguales. Operaciones ya introducidas a mano o con otra fuente no se concilian automáticamente: revisa el extracto.
+
+Pendiente: importadores específicos de bancos, traspasos fiscales entre fondos, cuenta de efectivo por operaciones, divisas y actualización conjunta de precios.

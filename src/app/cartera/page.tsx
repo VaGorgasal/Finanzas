@@ -3,6 +3,7 @@ import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Header, Info, Pnl, Section, Tag } from '../../components/Common';
 import { QuoteLookup } from '../../components/QuoteLookup';
 import type { MarketQuote } from '../../lib/market';
+import { CsvImport } from '../../components/CsvImport';
 import { TransactionForm } from '../../components/TransactionForm';
 import { InstrumentForm } from '../../components/InstrumentForm';
 import { usePortfolio } from '../../context/PortfolioContext';
@@ -79,6 +80,7 @@ export default function CarteraPage(){
       </Section>
       <Section className="span5" title="Tus datos, bajo control">
         <p className="muted">Sin registro ni backend. Todo se guarda en tu navegador. Puedes guardar una copia JSON para recuperarla después.</p>
+        <CsvImport/>
         <div className="actionStack"><button className="secondaryButton" onClick={download}>↓ Exportar cartera (.json)</button><button className="secondaryButton" onClick={()=>inputRef.current?.click()}>↑ Importar copia (.json)</button>
           <input ref={inputRef} type="file" accept="application/json,.json" className="visuallyHidden" onChange={onImport}/>
           <button className="secondaryButton" onClick={()=>{if(window.confirm('¿Restaurar la demostración? Esto sobrescribe los datos locales. Exporta antes si quieres guardar una copia.')){restoreDemo();setStatus('Demostración restaurada.');}}}>Ver demostración con datos ficticios</button>

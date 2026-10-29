@@ -1,0 +1,10 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {PLAN_KEY,emptyPlan,parsePlan,type Plan} from '../lib/financial-plan';
+export function useFinancialPlan(){const [plan,setPlan]=useState<Plan>(emptyPlan),[ready,setReady]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{try{const raw=localStorage.getItem(PLAN_KEY);
+ // eslint-disable-next-line react-hooks/set-state-in-effect
+ if(raw)setPlan(parsePlan(JSON.parse(raw)));
+ }catch{setError('No se ha podido recuperar el plan guardado.');}setReady(true);},[]);
+ function save(input:unknown){try{const valid=parsePlan(input);localStorage.setItem(PLAN_KEY,JSON.stringify(valid));setPlan(valid);setError('');return true;}catch(e){setError(e instanceof Error?e.message:'No se ha podido guardar.');return false;}}
+ return {plan,ready,error,save};}
