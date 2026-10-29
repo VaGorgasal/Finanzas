@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {analyzePortfolio,parseProfile,defaultProfile} from '../src/lib/advisor.ts';
+const state={demoMode:false};
+const h=(id,kind,value,category='global',quoteSource='manual')=>({units:1,value,instrument:{id,name:id,kind,category,quoteSource,priceDate:'2026-10-28'}});
+const ids=(holdings,profile=defaultProfile,demoMode=false)=>analyzePortfolio({...state,demoMode},{holdings,marketValue:holdings.reduce((n,h)=>n+h.value,0)},profile,'2026-10-29').map(x=>x.id);
+test('sin cartera pide datos, sin inventar un diagnóstico financiero',()=>{assert.deepEqual(ids([],null),['profile','empty']);});
+test('la demo no produce asesoramiento sobre el usuario',()=>assert.deepEqual(ids([h('x','acción',100)],defaultProfile,true),['demo']));
+test('un fondo global único no se interpreta como una única empresa',()=>{const r=ids([h('Global','fondo',100)]);assert.ok(!r.includes('stock'));assert.ok(r.includes('vehicle'));});
+test('revisa concentración directa en acciones',()=>assert.ok(ids([h('Empresa','acción',100)]).includes('stock')));
+test('omite concentración cuando los precios son ficticios',()=>{const r=ids([h('Demo','acción',100,'global','demo')]);assert.ok(r.includes('quotes'));assert.ok(!r.includes('stock'));});
+test('plazo corto y reserva declarada activan revisiones explicables',()=>{const r=ids([],{...defaultProfile,horizonYears:1,emergencyMonths:1});assert.ok(r.includes('horizon'));assert.ok(r.includes('reserve'));});
+test('detecta categorías desconocidas y precios antiguos',()=>{const old=h('x','fondo',100,'otro');old.instrument.priceDate='2026-10-01';const r=ids([old]);assert.ok(r.includes('stale'));assert.ok(r.includes('classification'));});
+test('valida el perfil persistido y no acepta valores imposibles',()=>{assert.equal(parseProfile({...defaultProfile,horizonYears:-1}),null);assert.equal(parseProfile({...defaultProfile,emergencyMonths:NaN}),null);assert.deepEqual(parseProfile(defaultProfile),defaultProfile);});

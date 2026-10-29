@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { usePortfolio } from '../context/PortfolioContext';
 import type { ReactNode } from 'react';
 const links = [
+  {href:'/asesor',label:'Asesor de cartera',glyph:'✦'},
   {href:'/',label:'Vista general',glyph:'◫'},
   {href:'/cartera',label:'Mi cartera',glyph:'◉'},
   {href:'/mercados',label:'Resumen diario',glyph:'▤'},

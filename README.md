@@ -135,7 +135,7 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 14 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 22 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
 
 ## Mejoras de fiabilidad
 
@@ -150,3 +150,11 @@ Añadir producto y Cambiar precio permiten buscar por ISIN. La app solo acepta c
 La prueba cachea resultados una hora y limita a 15 consultas nuevas por instancia cada 24 horas. Este límite se reinicia al reiniciar el proceso y no constituye un límite distribuido. Antes de abrir la app al público, se necesitan autenticación, cuota persistente y una licencia que autorice mostrar los datos a otros usuarios.
 
 Si no hay cobertura, la moneda no es EUR o falla el proveedor, se mantiene la valoración anterior y sigue disponible la entrada manual.
+
+## Asesor de cartera v1
+
+La ruta /asesor cruza cartera y contexto declarado (objetivo, plazo, meses de reserva y tolerancia a pérdidas). Produce diagnósticos deterministas con evidencia, prioridad y siguiente paso. No llama a una IA externa ni genera órdenes de compra o venta.
+
+Umbrales de revisión: reserva inferior a 3 meses, horizonte de 3 años o menos, una acción por encima del 15%, productos tecnológicos por encima del 30%, un vehículo por encima del 60% y precios de más de 7 días. Son criterios orientativos de la aplicación, no recomendaciones universales ni un test de idoneidad. Un único fondo global no se interpreta como concentración en una empresa. No se calculan pesos si hay posiciones con precios ficticios.
+
+Las categorías son declaradas por el usuario al añadir productos; no se infieren del nombre ni sustituyen la composición real de los fondos. El perfil se guarda aparte en el navegador y no está incluido en la copia JSON de la cartera. Faltan composición subyacente, ingresos, deudas y fiscalidad para un análisis personal completo.
