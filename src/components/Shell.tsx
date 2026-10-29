@@ -10,6 +10,7 @@ const links = [
   {href:'/cartera',label:'Mi cartera',glyph:'◉'},
   {href:'/mercados',label:'Resumen diario',glyph:'▤'},
   {href:'/academia',label:'Aprende',glyph:'▧'},
+  {href:'/faq',label:'Preguntas frecuentes',glyph:'?'},
 ];
 export function Shell({children}:{children:ReactNode}) {
   const path = usePathname();

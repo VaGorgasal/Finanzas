@@ -135,7 +135,7 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 45 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 48 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
 
 ## Mejoras de fiabilidad
 
@@ -186,3 +186,7 @@ El efectivo distingue ingresos y retiradas externos de compras, ventas y dividen
 Actualizar precios de mi cartera consulta solo posiciones abiertas, de forma secuencial y sujeta a la cuota del proveedor. La vista previa muestra cambios, errores, precios ya actualizados y productos sin cobertura. Se aplica solo al confirmar. Si hay varios mercados y ninguno guardado, se solicita elegir uno desde Cambiar precio. Se conserva el símbolo elegido y se rechazan fechas anteriores, otras monedas e ISIN diferentes. Si la cartera cambia después de preparar la vista previa, se debe volver a consultar antes de aplicarla. Un error en un producto no borra sus precios ni impide aplicar los demás.
 
 Las divisas siguen pendientes: la cartera y el registro de efectivo trabajan únicamente en EUR.
+
+## Preguntas frecuentes
+
+La sección /faq incluye 26 respuestas sobre primeros pasos, cartera y contabilidad, precios, plan y asesor, y datos e importación. Permite buscar sin distinguir tildes ni mayúsculas, combinar filtros por tema y desplegar respuestas con controles HTML nativos. Cada respuesta enlaza a la sección correspondiente. Los contenidos están en src/data/faq.ts y el filtro en src/lib/faq.ts; deben actualizarse cuando cambie el comportamiento del producto. La búsqueda funciona localmente y no envía consultas ni datos de cartera a terceros.
