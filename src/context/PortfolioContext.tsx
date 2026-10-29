@@ -10,6 +10,7 @@ type Result = { ok: true } | { ok: false; error: string };
 type ContextType = {
   state: PortfolioState;
   ready: boolean;
+  storageError: boolean;
   summary: ReturnType<typeof calculatePortfolio>;
   addTransaction: (tx: Transaction) => Result;
   editTransaction: (tx: Transaction) => Result;
@@ -26,14 +27,20 @@ const Context = createContext<ContextType | undefined>(undefined);
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<PortfolioState>(makeDemoPortfolio);
   const [ready, setReady] = useState(false);
+  const [storageError, setStorageError] = useState(false);
   useEffect(() => {
     // Carga el estado solo en cliente, conservando HTML inicial estable para SSR.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(readPortfolio());
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true);
   }, []);
-  useEffect(() => { if (ready) savePortfolio(state); }, [ready, state]);
+  useEffect(() => {
+    if (ready) {
+      const failed = !savePortfolio(state);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStorageError(failed);
+    }
+  }, [ready, state]);
   const summary = useMemo(() => calculatePortfolio(state.instruments, state.transactions), [state]);
   const safeLedger = (txs: Transaction[]) => validateLedger(txs, state.instruments);
 
@@ -85,7 +92,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   function restoreDemo() { setState(makeDemoPortfolio()); }
   function startBlank() { const demo = makeDemoPortfolio(); setState({...demo, demoMode:false, transactions:[]}); }
 
-  const ctx: ContextType = {state, ready, summary, addTransaction, editTransaction, deleteTransaction,
+  const ctx: ContextType = {state, ready, storageError, summary, addTransaction, editTransaction, deleteTransaction,
     addInstrument, updatePrice, importJson, restoreDemo, startBlank, completeLesson};
   return <Context.Provider value={ctx}>{children}</Context.Provider>;
 }

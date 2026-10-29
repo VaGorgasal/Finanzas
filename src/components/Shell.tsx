@@ -11,7 +11,7 @@ const links = [
 ];
 export function Shell({children}:{children:ReactNode}) {
   const path = usePathname();
-  const {state, ready} = usePortfolio();
+  const {state, ready, storageError} = usePortfolio();
   return <div className="appShell">
     <aside className="sidebar">
       <Link className="brand" href="/" aria-label="Brújula Financiera, inicio">
@@ -26,8 +26,8 @@ export function Shell({children}:{children:ReactNode}) {
     </aside>
     <div className="mainWrap">
       <div className="mobileNav"><Link href="/" className="mobileBrand">✦ Brújula</Link><div>{links.map(x=><Link key={x.href} href={x.href} className={path===x.href?'selected':''}>{x.label}</Link>)}</div></div>
-      <main className="mainContent">{children}</main>
-      <footer className="appFooter"><span>Brújula Financiera © 2026 · Proyecto educativo. No es asesoramiento financiero personalizado.</span><span>Datos guardados en este navegador · EUR</span></footer>
+      <main className="mainContent">{storageError && <div className="notice" role="alert"><strong>No se han podido guardar los cambios.</strong> El navegador ha bloqueado el almacenamiento o no queda espacio. Conserva esta pestaña abierta y exporta tu cartera desde Mi cartera para no perderla.</div>}{children}</main>
+      <footer className="appFooter"><span>Brújula Financiera © 2026 · Proyecto educativo. No es asesoramiento financiero personalizado.</span><span>{storageError ? 'Cambios sin guardar · Exporta una copia' : 'Datos guardados en este navegador · EUR'}</span></footer>
     </div>
   </div>;
 }

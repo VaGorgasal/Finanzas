@@ -24,8 +24,12 @@ export function sortedTransactions(txs: Transaction[]): Transaction[] {
 /** Rechaza una venta sin participaciones previas, incluso cuando se introduce con fecha retroactiva. */
 export function validateLedger(txs: Transaction[], instruments: Instrument[], maxDate = todayIso()): string | null {
   const ids = new Set(instruments.map((a) => a.id));
-  const balances: Record<string, number> = {};
+  const balances: Record<string, number> = Object.create(null);
   const txIds = new Set<string>();
+  for (const t of txs) {
+    if (!t || typeof t !== 'object' || typeof t.id !== 'string' || !t.id.trim() || t.id.length > 100 ||
+      typeof t.instrumentId !== 'string' || typeof t.date !== 'string') return 'Una operación tiene datos incorrectos.';
+  }
   for (const t of sortedTransactions(txs)) {
     if (!t.id || txIds.has(t.id)) return 'Hay operaciones duplicadas.';
     if (!['BUY', 'SELL', 'DIVIDEND'].includes(t.type)) return 'Tipo de operación no reconocido.';

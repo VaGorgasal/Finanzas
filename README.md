@@ -133,4 +133,8 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 6 pruebas superadas, TypeScript correcto, ESLint sin errores (una advertencia por directiva innecesaria) y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 10 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+
+## Mejoras de fiabilidad
+
+Se avisa si el navegador no puede guardar los cambios; exporta una copia antes de cerrar la pestaña. La importación rechaza operaciones malformadas, identificadores vacíos y precios con fecha futura. GitHub Actions ejecuta pruebas, lint, compilación y TypeScript en cada push y pull request.

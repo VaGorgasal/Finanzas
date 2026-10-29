@@ -55,3 +55,17 @@ test('compraventa en la misma fecha sigue orden documentado',()=>{
   assert.deepEqual(sortedTransactions(txs).map(t=>t.type),['BUY','SELL']);
   assert.equal(validateLedger(txs,[a],'2026-10-29'),null);
 });
+
+
+test('rechaza operaciones malformadas antes de ordenar el libro', () => {
+  for (const txs of [[null], [null, null], [{id: 7}], [{id:'x', date: 12, instrumentId:'a'}]]) {
+    assert.match(validateLedger(txs, [a]), /incorrectos/i);
+  }
+});
+test('los identificadores heredados no permiten ventas sin compras', () => {
+  for (const id of ['__proto__', 'constructor', 'toString']) {
+    const asset = {...a, id};
+    const sell = {id:'sell',instrumentId:id,type:'SELL',date:'2026-10-20',amount:10,units:1,fee:0};
+    assert.match(validateLedger([sell],[asset]), /vender más/i);
+  }
+});

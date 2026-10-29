@@ -1,6 +1,7 @@
 import type { Instrument, PortfolioState, Transaction } from './types';
 import { makeDemoPortfolio } from '../data/demo';
-import { validateLedger, isValidDay } from './portfolio';
+import { validateLedger, isValidDay, todayIso } from './portfolio';
+import { persistJson } from './persistence';
 export const STORAGE_KEY = 'brujula-financiera-v02';
 
 function isRecord(a: unknown): a is Record<string, unknown> {
@@ -22,7 +23,7 @@ export function parsePortfolio(input: unknown): PortfolioState {
     if (!p || typeof p !== 'object' || typeof p.id !== 'string' || typeof p.name !== 'string' || typeof p.isin !== 'string' || typeof p.color !== 'string' ||
       !allowedKinds.includes(p.kind) || !allowedCategories.includes(p.category) || typeof p.explanation !== 'string' || typeof p.risk !== 'string' ||
       p.currency !== 'EUR' || !Number.isFinite(p.price) || p.price <= 0 || p.price > 1e9 || !isValidDay(p.priceDate) ||
-      !['demo','manual'].includes(p.quoteSource) || p.id.length > 100 || p.name.length > 150 || p.explanation.length > 1000 || p.risk.length > 1000 ||
+      !['demo','manual'].includes(p.quoteSource) || !p.id.trim() || !p.name.trim() || p.priceDate > todayIso() || p.id.length > 100 || p.name.length > 150 || p.explanation.length > 1000 || p.risk.length > 1000 ||
       !/^#[\da-fA-F]{6}$/.test(p.color) || !/^[A-Z]{2}[A-Z0-9]{10}$/.test(p.isin) || identifiers.has(p.id) || isins.has(p.isin)) {
       throw new Error('Uno de los productos tiene datos incorrectos o duplicados.');
     }
@@ -41,6 +42,6 @@ export function readPortfolio(): PortfolioState {
     return raw ? parsePortfolio(JSON.parse(raw) as unknown) : makeDemoPortfolio();
   } catch { return makeDemoPortfolio(); }
 }
-export function savePortfolio(p: PortfolioState): void {
-  if (typeof window !== 'undefined') window.localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+export function savePortfolio(p: PortfolioState): boolean {
+  return persistJson(() => window.localStorage, STORAGE_KEY, p);
 }
