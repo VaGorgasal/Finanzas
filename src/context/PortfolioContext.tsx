@@ -7,6 +7,8 @@ import { calculatePortfolio, isValidDay, todayIso, validateLedger } from '../lib
 import { parsePortfolio, readPortfolio, savePortfolio } from '../lib/storage';
 import type { Instrument, PortfolioState, Transaction } from '../lib/types';
 
+import {validatePriceChanges,type PriceChange} from '../lib/batch-quotes';
+
 type Result = { ok: true } | { ok: false; error: string };
 type ContextType = {
   state: PortfolioState;
@@ -17,7 +19,8 @@ type ContextType = {
   editTransaction: (tx: Transaction) => Result;
   deleteTransaction: (id: string) => Result;
   addInstrument: (asset: Instrument) => Result;
-  updatePrice: (id: string, price: number, date: string, source?: Instrument['quoteSource']) => Result;
+  updatePrice: (id: string, price: number, date: string, source?: Instrument['quoteSource'], symbol?: string) => Result;
+  applyPriceUpdates: (changes:PriceChange[])=>Result;
   importJson: (input: unknown) => Result;
   restoreDemo: () => void;
   startBlank: () => void;
@@ -78,9 +81,18 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setState(s => ({...s, demoMode:false, instruments:[...s.instruments, instrument]}));
     return {ok:true};
   }
-  function updatePrice(id: string, price: number, date: string, source: Instrument['quoteSource'] = 'manual'): Result {
+  function updatePrice(id: string, price: number, date: string, source: Instrument['quoteSource'] = 'manual', symbol?:string): Result {
+    if(!state.instruments.some(x=>x.id===id))return {ok:false,error:'Producto no encontrado.'};
     if (!Number.isFinite(price) || price <= 0 || price > 1e9 || !isValidDay(date) || date > todayIso()) return {ok:false,error:'Indica precio y fecha válidos.'};
-    setState(s => ({...s, instruments:s.instruments.map(x => x.id === id ? {...x,price,priceDate:date,quoteSource:source} : x)}));
+    setState(s => ({...s, instruments:s.instruments.map(x => x.id === id ? {...x,price,priceDate:date,quoteSource:source,quoteSymbol:symbol??x.quoteSymbol} : x)}));
+    return {ok:true};
+  }
+  function applyPriceUpdates(changes:PriceChange[]):Result {
+    if(state.demoMode)return {ok:false,error:'Activa una cartera personal.'};
+    const error=validatePriceChanges(state.instruments,changes,todayIso());
+    if(error)return {ok:false,error};
+    const byId=new Map(changes.map(c=>[c.id,c]));
+    setState(s=>({...s,instruments:s.instruments.map(a=>{const c=byId.get(a.id);return c?{...a,price:c.price,priceDate:c.date,quoteSource:'eodhd',quoteSymbol:c.symbol}:a;})}));
     return {ok:true};
   }
   function importJson(input: unknown): Result {
@@ -94,7 +106,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
   function startBlank() { setState(s => ({...makeEmptyPortfolio(), completedLessons:s.completedLessons})); }
 
   const ctx: ContextType = {state, ready, storageError, summary, addTransaction, editTransaction, deleteTransaction,
-    addInstrument, updatePrice, importJson, restoreDemo, startBlank, completeLesson};
+    addInstrument, updatePrice, applyPriceUpdates, importJson, restoreDemo, startBlank, completeLesson};
   return <Context.Provider value={ctx}>{children}</Context.Provider>;
 }
 export function usePortfolio(): ContextType {

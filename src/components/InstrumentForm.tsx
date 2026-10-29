@@ -14,7 +14,7 @@ export function InstrumentForm({onDone}:{onDone:()=>void}){
   const [day,setDay]=useState(todayIso()); const [error,setError]=useState('');
   function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault();
-    const asset:Instrument={id:`manual-${Date.now()}-${Math.random().toString(36).slice(2)}`,name:name.trim(),isin:isin.trim().toUpperCase(),kind,category,color:'#db9c56',explanation:'Instrumento añadido manualmente. Comprueba sus condiciones y documentación oficial.',risk:'La aplicación no verifica el ISIN ni importa automáticamente riesgos o precios.',currency:'EUR',price:Number(price),priceDate:day,quoteSource:quote && quote.isin===isin.trim().toUpperCase() && quote.price===Number(price) && quote.date===day ? 'eodhd' : 'manual'};
+    const asset:Instrument={id:`manual-${Date.now()}-${Math.random().toString(36).slice(2)}`,name:name.trim(),isin:isin.trim().toUpperCase(),kind,category,color:'#db9c56',explanation:'Instrumento añadido manualmente. Comprueba sus condiciones y documentación oficial.',risk:'La aplicación no verifica el ISIN ni importa automáticamente riesgos o precios.',currency:'EUR',price:Number(price),priceDate:day,quoteSource:quote && quote.isin===isin.trim().toUpperCase() && quote.price===Number(price) && quote.date===day ? 'eodhd' : 'manual',quoteSymbol:quote?.isin===isin.trim().toUpperCase()?quote.symbol:undefined};
     if(!asset.name || asset.name.length>150 || !Number.isFinite(asset.price)||asset.price<=0){setError('Revisa nombre y precio.');return;}
     const result=addInstrument(asset);if(!result.ok){setError(result.error);return;}onDone();
   }

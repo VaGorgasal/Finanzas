@@ -135,7 +135,7 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 31 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 45 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
 
 ## Mejoras de fiabilidad
 
@@ -173,4 +173,16 @@ En Mi cartera puedes descargar una plantilla e importar operaciones con vista pr
 
 Ejemplo de formato, no datos reales: 2026-10-20;IE00BYX5NX33;BUY;100;10;1. Los dividendos deben ser netos, sin participaciones ni comisión. La vista previa valida el saldo de participaciones antes de confirmar. Máximo 5000 filas y 2 MB. Las filas repetidas se rechazan y los identificadores permiten detectar la reimportación de archivos iguales. Operaciones ya introducidas a mano o con otra fuente no se concilian automáticamente: revisa el extracto.
 
-Pendiente: importadores específicos de bancos, traspasos fiscales entre fondos, cuenta de efectivo por operaciones, divisas y actualización conjunta de precios.
+Pendiente: importadores específicos de bancos, fiscalidad por lotes FIFO, periodos de liquidación de traspasos y divisas.
+
+## Traspasos y efectivo
+
+Mi cartera admite traspasos económicos entre fondos con participaciones de salida y entrada. Se arrastra el coste medio pendiente y no se crea una venta, una nueva compra con dinero externo ni una ganancia realizada. Las correcciones retroactivas recalculan el coste. No se verifica el derecho al diferimiento fiscal ni se calculan lotes FIFO; no admite comisiones de traspaso ni liquidaciones pendientes. El orden del mismo día es: compras, traspasos por secuencia única, dividendos y ventas. Los traspasos se editan desde su propio panel. El porcentaje sobre compras del fondo receptor se deja sin calcular porque no representa correctamente el capital transferido.
+
+El efectivo distingue ingresos y retiradas externos de compras, ventas y dividendos. Antes del primer movimiento externo se muestra Sin registrar. Un saldo diario negativo señala posibles movimientos ausentes; no se añaden ingresos supuestos ni se concilia con un banco. Los flujos de entrada se ordenan antes de compras y retiradas del mismo día: no se reconstruye el saldo intradía. Los datos de efectivo viajan en las copias de cartera y en las copias completas. No se suman automáticamente a Mi plan financiero para evitar duplicar liquidez ya declarada.
+
+## Actualización conjunta de precios
+
+Actualizar precios de mi cartera consulta solo posiciones abiertas, de forma secuencial y sujeta a la cuota del proveedor. La vista previa muestra cambios, errores, precios ya actualizados y productos sin cobertura. Se aplica solo al confirmar. Si hay varios mercados y ninguno guardado, se solicita elegir uno desde Cambiar precio. Se conserva el símbolo elegido y se rechazan fechas anteriores, otras monedas e ISIN diferentes. Si la cartera cambia después de preparar la vista previa, se debe volver a consultar antes de aplicarla. Un error en un producto no borra sus precios ni impide aplicar los demás.
+
+Las divisas siguen pendientes: la cartera y el registro de efectivo trabajan únicamente en EUR.

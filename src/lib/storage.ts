@@ -1,7 +1,8 @@
-import type { Instrument, PortfolioState, Transaction } from './types';
+import type { CashEntry, Instrument, PortfolioState, Transaction } from './types';
 import { makeEmptyPortfolio } from '../data/empty';
 import { validateLedger, isValidDay, todayIso } from './portfolio';
 import { persistJson } from './persistence';
+import { validateCashEntries } from './cash';
 export const STORAGE_KEY = 'brujula-financiera-v02';
 
 function isRecord(a: unknown): a is Record<string, unknown> {
@@ -23,6 +24,7 @@ export function parsePortfolio(input: unknown): PortfolioState {
     if (!p || typeof p !== 'object' || typeof p.id !== 'string' || typeof p.name !== 'string' || typeof p.isin !== 'string' || typeof p.color !== 'string' ||
       !allowedKinds.includes(p.kind) || !allowedCategories.includes(p.category) || typeof p.explanation !== 'string' || typeof p.risk !== 'string' ||
       p.currency !== 'EUR' || !Number.isFinite(p.price) || p.price <= 0 || p.price > 1e9 || !isValidDay(p.priceDate) ||
+      (p.quoteSymbol!==undefined && (typeof p.quoteSymbol!=='string' || !p.quoteSymbol.trim() || p.quoteSymbol.length>100)) ||
       !['demo','manual','eodhd'].includes(p.quoteSource) || !p.id.trim() || !p.name.trim() || p.priceDate > todayIso() || p.id.length > 100 || p.name.length > 150 || p.explanation.length > 1000 || p.risk.length > 1000 ||
       !/^#[\da-fA-F]{6}$/.test(p.color) || !/^[A-Z]{2}[A-Z0-9]{10}$/.test(p.isin) || identifiers.has(p.id) || isins.has(p.isin)) {
       throw new Error('Uno de los productos tiene datos incorrectos o duplicados.');
@@ -31,9 +33,13 @@ export function parsePortfolio(input: unknown): PortfolioState {
   }
   const error = validateLedger(transactions, instruments);
   if (error) throw new Error(error);
+  const cashEntries = input.cashEntries ?? [];
+  const cashError=validateCashEntries(cashEntries,todayIso());
+  if(cashError)throw new Error(cashError);
+  if(input.cashTracking!==undefined && typeof input.cashTracking!=='boolean')throw new Error('Estado de efectivo no válido.');
   const completedLessons = input.completedLessons.filter((x): x is string => typeof x === 'string' && x.length < 80).slice(0,100);
   return { version:2, demoMode: input.demoMode === true,
-    instruments: instruments.map(x => ({...x})), transactions:transactions.map(x=>({...x})), completedLessons };
+    instruments: instruments.map(x => ({...x})), transactions:transactions.map(x=>({...x})), completedLessons, cashTracking:input.cashTracking===true || (cashEntries as CashEntry[]).length>0, cashEntries:(cashEntries as CashEntry[]).map(x=>({id:x.id,date:x.date,type:x.type,amount:x.amount})) };
 }
 export function readPortfolio(): PortfolioState {
   if (typeof window === 'undefined') return makeEmptyPortfolio();

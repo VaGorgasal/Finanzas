@@ -1,6 +1,6 @@
 export type AssetKind = 'fondo' | 'etf' | 'acción' | 'otro';
 export type AssetCategory = 'global' | 'tecnología' | 'sectorial' | 'otro';
-export type TransactionType = 'BUY' | 'SELL' | 'DIVIDEND';
+export type TransactionType = 'BUY' | 'SELL' | 'DIVIDEND' | 'TRANSFER';
 
 export interface Instrument {
   id: string;
@@ -15,6 +15,7 @@ export interface Instrument {
   priceDate: string; // AAAA-MM-DD, valor aportado por usuario o demo
   quoteSource: 'demo' | 'manual' | 'eodhd';
   currency: 'EUR';
+  quoteSymbol?: string;
 }
 
 export interface Transaction {
@@ -24,8 +25,13 @@ export interface Transaction {
   date: string;
   amount: number; // BUY: importe negociado; SELL: importe bruto de venta; DIVIDEND: dividendo neto
   units: number;  // BUY/SELL: participaciones, DIVIDEND: 0
-  fee: number;    // BUY/SELL: costes adicionales, DIVIDEND: 0
+  fee: number;    // BUY/SELL: costes adicionales, DIVIDEND/TRANSFER: 0
+  targetInstrumentId?: string;
+  targetUnits?: number;
+  sequence?: number;
 }
+
+export interface CashEntry {id:string;date:string;type:'DEPOSIT'|'WITHDRAW';amount:number;}
 
 export interface PortfolioState {
   version: 2;
@@ -33,6 +39,8 @@ export interface PortfolioState {
   instruments: Instrument[];
   transactions: Transaction[];
   completedLessons: string[];
+  cashTracking?: boolean;
+  cashEntries?: CashEntry[];
 }
 
 export interface Holding {

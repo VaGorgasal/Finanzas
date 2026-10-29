@@ -3,6 +3,8 @@ import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Header, Info, Pnl, Section, Tag } from '../../components/Common';
 import { QuoteLookup } from '../../components/QuoteLookup';
 import type { MarketQuote } from '../../lib/market';
+import { AccountingPanel } from '../../components/AccountingPanel';
+import { BatchPrices } from '../../components/BatchPrices';
 import { CsvImport } from '../../components/CsvImport';
 import { TransactionForm } from '../../components/TransactionForm';
 import { InstrumentForm } from '../../components/InstrumentForm';
@@ -15,7 +17,7 @@ function PriceEditor({asset,onDone}:{asset:Instrument,onDone:()=>void}){
   const [quote,setQuote]=useState<MarketQuote|null>(null);
   const [price,setPrice]=useState(String(asset.price));const [day,setDay]=useState(asset.priceDate);
   const [error,setError]=useState('');
-  function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const result=updatePrice(asset.id,Number(price),day,quote && quote.price===Number(price) && quote.date===day ? 'eodhd' : 'manual');
+  function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const result=updatePrice(asset.id,Number(price),day,quote && quote.price===Number(price) && quote.date===day ? 'eodhd' : 'manual',quote?.symbol);
     if(!result.ok){setError(result.error);return;}onDone();}
   return <form onSubmit={submit} className="inlinePrice"><QuoteLookup isin={asset.isin} onSelect={q=>{setQuote(q);setPrice(String(q.price));setDay(q.date);}}/><div className="field"><label>Precio unitario (€)</label><input aria-label="Nuevo precio" type="number" min="0.00001" step="any" value={price} onChange={e=>setPrice(e.target.value)} required/></div><div className="field"><label>Fecha de valoración</label><input aria-label="Fecha del nuevo precio" type="date" max={todayIso()} value={day} onChange={e=>setDay(e.target.value)} required/></div><button className="primaryButton" type="submit">Guardar precio</button><button type="button" className="secondaryButton" onClick={onDone}>Cancelar</button>{error&&<span className="fieldError">{error}</span>}</form>;
 }
@@ -52,6 +54,8 @@ export default function CarteraPage(){
       <div className="metricCard"><span>Resultado total</span><strong>{unpriced ? '—' : <Pnl amount={summary.totalPnL}/>}</strong><small>Realizado + latente + dividendos</small></div>
       <div className="metricCard"><span>Resultado / compras</span><strong>{unpriced ? '—' : pct(summary.returnOnBuys)}</strong><small>No anualizado; sensible a rotación</small></div>
     </div>
+    <BatchPrices/>
+    <AccountingPanel/>
     <div className="contentGrid">
       <Section className="span12" title="Productos de tu cartera" extra={<div className="toolbar">{!state.demoMode&&<button className="secondaryButton" onClick={()=>setShowAssetForm(!showAssetForm)}>{showAssetForm?'Cerrar':'＋ Añadir producto'}</button>}</div>}>
         {showAssetForm&&!state.demoMode&&<div className="formInset"><h3>Nuevo producto</h3><InstrumentForm onDone={()=>setShowAssetForm(false)}/></div>}
@@ -66,7 +70,7 @@ export default function CarteraPage(){
         {status&&<p role="status" className="statusMsg">{status} <button className="textButton" onClick={()=>setStatus('')}>Cerrar</button></p>}
         <div className="assetTableWrap"><table className="dataTable"><thead><tr><th>Fecha</th><th>Producto</th><th>Movimiento</th><th>Importe</th><th>Participaciones</th><th>Comisión</th><th/></tr></thead><tbody>
           {sortedTransactions(state.transactions).reverse().map(tx=>{const asset=state.instruments.find(x=>x.id===tx.instrumentId);
-            return <tr key={tx.id}><td>{tx.date}</td><td>{asset?.name??'—'}</td><td><span className={`eventType ${tx.type.toLowerCase()}`}>{tx.type==='BUY'?'Compra':tx.type==='SELL'?'Venta':'Dividendo'}</span></td><td>{eur(tx.amount)}</td><td>{tx.type==='DIVIDEND'?'—':nfmt(tx.units,6)}</td><td>{eur(tx.fee)}</td><td>{!state.demoMode&&<div className="tableActions"><button className="textButton" onClick={()=>{setEditing(tx);setShowForm(true);setStatus('');}}>Editar</button><button className="textButton danger" onClick={()=>onDelete(tx.id)}>Borrar</button></div>}</td></tr>;
+            return <tr key={tx.id}><td>{tx.date}</td><td>{asset?.name??'—'}</td><td><span className={`eventType ${tx.type.toLowerCase()}`}>{tx.type==='BUY'?'Compra':tx.type==='SELL'?'Venta':tx.type==='TRANSFER'?'Traspaso':'Dividendo'}</span></td><td>{tx.type==='TRANSFER'?'—':eur(tx.amount)}</td><td>{tx.type==='DIVIDEND'?'—':nfmt(tx.units,6)}</td><td>{eur(tx.fee)}</td><td>{!state.demoMode&&<div className="tableActions">{tx.type!=='TRANSFER'&&<button className="textButton" onClick={()=>{setEditing(tx);setShowForm(true);setStatus('');}}>Editar</button>}<button className="textButton danger" onClick={()=>onDelete(tx.id)}>Borrar</button></div>}</td></tr>;
           })}
           {!state.transactions.length&&<tr><td colSpan={7} className="muted">No hay operaciones registradas. Pulsa «Nueva operación» para empezar.</td></tr>}
         </tbody></table></div>
