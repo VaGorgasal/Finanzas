@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { makeDemoPortfolio } from '../data/demo';
+import { makeEmptyPortfolio } from '../data/empty';
 import { calculatePortfolio, isValidDay, todayIso, validateLedger } from '../lib/portfolio';
 import { parsePortfolio, readPortfolio, savePortfolio } from '../lib/storage';
 import type { Instrument, PortfolioState, Transaction } from '../lib/types';
@@ -25,7 +26,7 @@ type ContextType = {
 const Context = createContext<ContextType | undefined>(undefined);
 
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<PortfolioState>(makeDemoPortfolio);
+  const [state, setState] = useState<PortfolioState>(makeEmptyPortfolio);
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   useEffect(() => {
@@ -90,7 +91,7 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setState(s => s.completedLessons.includes(id) ? s : ({...s,completedLessons:[...s.completedLessons,id]}));
   }
   function restoreDemo() { setState(makeDemoPortfolio()); }
-  function startBlank() { const demo = makeDemoPortfolio(); setState({...demo, demoMode:false, transactions:[]}); }
+  function startBlank() { setState(s => ({...makeEmptyPortfolio(), completedLessons:s.completedLessons})); }
 
   const ctx: ContextType = {state, ready, storageError, summary, addTransaction, editTransaction, deleteTransaction,
     addInstrument, updatePrice, importJson, restoreDemo, startBlank, completeLesson};

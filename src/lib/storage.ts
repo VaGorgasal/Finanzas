@@ -1,5 +1,5 @@
 import type { Instrument, PortfolioState, Transaction } from './types';
-import { makeDemoPortfolio } from '../data/demo';
+import { makeEmptyPortfolio } from '../data/empty';
 import { validateLedger, isValidDay, todayIso } from './portfolio';
 import { persistJson } from './persistence';
 export const STORAGE_KEY = 'brujula-financiera-v02';
@@ -36,11 +36,13 @@ export function parsePortfolio(input: unknown): PortfolioState {
     instruments: instruments.map(x => ({...x})), transactions:transactions.map(x=>({...x})), completedLessons };
 }
 export function readPortfolio(): PortfolioState {
-  if (typeof window === 'undefined') return makeDemoPortfolio();
+  if (typeof window === 'undefined') return makeEmptyPortfolio();
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? parsePortfolio(JSON.parse(raw) as unknown) : makeDemoPortfolio();
-  } catch { return makeDemoPortfolio(); }
+    const saved = raw ? parsePortfolio(JSON.parse(raw) as unknown) : makeEmptyPortfolio();
+    // La demostración es una sesión explícita y no se recupera al abrir la aplicación.
+    return saved.demoMode ? {...makeEmptyPortfolio(), completedLessons:saved.completedLessons} : saved;
+  } catch { return makeEmptyPortfolio(); }
 }
 export function savePortfolio(p: PortfolioState): boolean {
   return persistJson(() => window.localStorage, STORAGE_KEY, p);

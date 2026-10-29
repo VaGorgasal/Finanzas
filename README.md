@@ -37,12 +37,14 @@ npm run start       # Servidor tras compilar
 
 ## Primer uso
 
-1. Abre **Mi cartera**. La aplicación muestra **72 € iniciales en operaciones inventadas**: 60 € en Fidelity MSCI World y 12 € en iShares Technology. Los precios (10,15 €/participación y 5,78 €/participación) son *sintéticos*, no precios publicados de esos productos.
-2. Pulsa **Empezar mi cartera en blanco**: desaparecen todas las operaciones de prueba. Los dos productos permanecen en el catálogo, con precios **todavía ficticios** para que puedas sustituirlos.
-3. Cambia el **precio manual y su fecha** en cada producto, utilizando documentación o el valor de mercado mostrado por tu intermediario. Si añades instrumentos por ISIN, la app solo valida formato; **no verifica su existencia**.
-4. Pulsa **Nueva operación**, selecciona compra/venta/dividendo, fecha, importe (€), participaciones y comisión. La app impedirá ventas superiores a los títulos existentes en la fecha de la operación.
-5. Consulta resultados por instrumento y consolidados, y utiliza **Exportar cartera** para crear copia de seguridad JSON. Puedes recuperarla mediante **Importar copia**.
-6. Ve a **Resumen diario** y **Aprende** para repasar los ejemplos educativos y realizar las lecciones.
+1. La aplicación comienza con una cartera vacía: no incluye inversiones ni precios de ejemplo.
+2. En Mi cartera, pulsa Añadir producto e introduce el nombre, ISIN y precio por participación que muestra tu intermediario, junto con su fecha. Actualmente solo se admite EUR y la app no verifica la existencia del ISIN.
+3. Registra tus compras, ventas y dividendos con fechas, importes, participaciones y comisiones reales.
+4. También puedes importar una copia JSON compatible y exportar tu cartera como respaldo.
+5. La demostración se activa únicamente mediante el botón explícito. Antes de reemplazar una cartera, exporta una copia. Al volver a abrir la aplicación, una sesión de demostración no se recupera automáticamente.
+6. Las carteras personales anteriores se conservan. Si una posición mantiene un precio de ejemplo, introduce un precio real: mientras tanto el valor y la rentabilidad afectados permanecen ocultos.
+
+No existe sincronización automática con bancos o cotizaciones. Los datos personales se guardan en el navegador del usuario y no se incluyen en el repositorio.
 
 ## Fórmulas contables (V0.2)
 
@@ -133,7 +135,7 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 10 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 12 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
 
 ## Mejoras de fiabilidad
 
