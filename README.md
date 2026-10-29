@@ -133,4 +133,4 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. El entorno de generación no tenía acceso funcional a `registry.npmjs.org`, de modo que no se ha podido ejecutar aquí la compilación completa de Next.js; el motor de cálculo sí admite comprobación local con Node 22 usando `npm run test`.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 6 pruebas superadas, TypeScript correcto, ESLint sin errores (una advertencia por directiva innecesaria) y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
