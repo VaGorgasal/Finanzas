@@ -23,7 +23,7 @@ export function parsePortfolio(input: unknown): PortfolioState {
     if (!p || typeof p !== 'object' || typeof p.id !== 'string' || typeof p.name !== 'string' || typeof p.isin !== 'string' || typeof p.color !== 'string' ||
       !allowedKinds.includes(p.kind) || !allowedCategories.includes(p.category) || typeof p.explanation !== 'string' || typeof p.risk !== 'string' ||
       p.currency !== 'EUR' || !Number.isFinite(p.price) || p.price <= 0 || p.price > 1e9 || !isValidDay(p.priceDate) ||
-      !['demo','manual'].includes(p.quoteSource) || !p.id.trim() || !p.name.trim() || p.priceDate > todayIso() || p.id.length > 100 || p.name.length > 150 || p.explanation.length > 1000 || p.risk.length > 1000 ||
+      !['demo','manual','eodhd'].includes(p.quoteSource) || !p.id.trim() || !p.name.trim() || p.priceDate > todayIso() || p.id.length > 100 || p.name.length > 150 || p.explanation.length > 1000 || p.risk.length > 1000 ||
       !/^#[\da-fA-F]{6}$/.test(p.color) || !/^[A-Z]{2}[A-Z0-9]{10}$/.test(p.isin) || identifiers.has(p.id) || isins.has(p.isin)) {
       throw new Error('Uno de los productos tiene datos incorrectos o duplicados.');
     }

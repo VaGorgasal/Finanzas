@@ -11,12 +11,12 @@ export default function Dashboard() {
   const active = summary.holdings.filter(x=>x.units>0.00000001);
   const firstTodo=lessons.find(x=>!state.completedLessons.includes(x.id));
   return <>
-    <Header eyebrow="TU ESPACIO FINANCIERO" title="Hola, futuro inversor 👋" description="Comprende lo que tienes. Decide con criterio, no con prisas." action={<Tag tone="amber">{state.demoMode?'MODO DEMO · importes ficticios':'MODO LOCAL · precios manuales'}</Tag>}/>
+    <Header eyebrow="TU ESPACIO FINANCIERO" title="Hola, futuro inversor 👋" description="Comprende lo que tienes. Decide con criterio, no con prisas." action={<Tag tone="amber">{state.demoMode?'MODO DEMO · importes ficticios':'CARTERA PERSONAL · EUR'}</Tag>}/>
     <div className="heroGrid">
       <section className="heroCard">
         <div className="heroEyebrow">VALOR ESTIMADO DE TU CARTERA</div>
         <div className="heroAmount">{unpriced ? 'Pendiente de valorar' : eur(summary.marketValue)}</div>
-        <div className="heroSub">Calculado con precios {state.instruments.some(a=>a.quoteSource==='demo')?'de demostración o manuales':'introducidos manualmente'} · No hay datos en directo</div>
+        <div className="heroSub">Calculado con precios {state.instruments.some(a=>a.quoteSource==='demo')?'de demostración o manuales':'registrados con fecha'} · No hay datos en directo</div>
         <div className="heroDivider"/>
         <div className="heroStats">
           <div><div className="labelOnDark">Aportaciones netas</div><strong>{eur(summary.netCashContributed)}</strong></div>

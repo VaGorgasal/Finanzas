@@ -13,7 +13,7 @@ export interface Instrument {
   risk: string;
   price: number;
   priceDate: string; // AAAA-MM-DD, valor aportado por usuario o demo
-  quoteSource: 'demo' | 'manual';
+  quoteSource: 'demo' | 'manual' | 'eodhd';
   currency: 'EUR';
 }
 

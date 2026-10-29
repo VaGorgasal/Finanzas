@@ -17,7 +17,7 @@ type ContextType = {
   editTransaction: (tx: Transaction) => Result;
   deleteTransaction: (id: string) => Result;
   addInstrument: (asset: Instrument) => Result;
-  updatePrice: (id: string, price: number, date: string) => Result;
+  updatePrice: (id: string, price: number, date: string, source?: Instrument['quoteSource']) => Result;
   importJson: (input: unknown) => Result;
   restoreDemo: () => void;
   startBlank: () => void;
@@ -78,9 +78,9 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     setState(s => ({...s, demoMode:false, instruments:[...s.instruments, instrument]}));
     return {ok:true};
   }
-  function updatePrice(id: string, price: number, date: string): Result {
+  function updatePrice(id: string, price: number, date: string, source: Instrument['quoteSource'] = 'manual'): Result {
     if (!Number.isFinite(price) || price <= 0 || price > 1e9 || !isValidDay(date) || date > todayIso()) return {ok:false,error:'Indica precio y fecha válidos.'};
-    setState(s => ({...s, instruments:s.instruments.map(x => x.id === id ? {...x,price,priceDate:date,quoteSource:'manual'} : x)}));
+    setState(s => ({...s, instruments:s.instruments.map(x => x.id === id ? {...x,price,priceDate:date,quoteSource:source} : x)}));
     return {ok:true};
   }
   function importJson(input: unknown): Result {

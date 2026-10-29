@@ -135,8 +135,18 @@ No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún d
 
 ## Sobre este entregable
 
-Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 12 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
+Este ZIP incluye todo el **código fuente**, configuración, documentación y pruebas. No incluye dependencias descargadas. Validado en GitHub Codespaces: 14 pruebas superadas, TypeScript correcto, ESLint sin errores ni advertencias y compilación de producción correcta. Se incluye package-lock.json para instalar con npm ci.
 
 ## Mejoras de fiabilidad
 
 Se avisa si el navegador no puede guardar los cambios; exporta una copia antes de cerrar la pestaña. La importación rechaza operaciones malformadas, identificadores vacíos y precios con fecha futura. GitHub Actions ejecuta pruebas, lint, compilación y TypeScript en cada push y pull request.
+
+## Precios EODHD (prueba privada)
+
+Configura EODHD_API_KEY en .env.local, solo en el servidor. Nunca uses NEXT_PUBLIC para esta clave. En otro alojamiento debes crear allí el mismo secreto; no se incluye en GitHub.
+
+Añadir producto y Cambiar precio permiten buscar por ISIN. La app solo acepta coincidencias exactas con precios positivos, fecha válida y moneda EUR. El usuario elige el producto/mercado, aplica el precio y guarda; se registra EODHD como fuente. No es una conexión bancaria ni una cotización en tiempo real. Los datos de búsqueda corresponden al último cierre disponible según el proveedor.
+
+La prueba cachea resultados una hora y limita a 15 consultas nuevas por instancia cada 24 horas. Este límite se reinicia al reiniciar el proceso y no constituye un límite distribuido. Antes de abrir la app al público, se necesitan autenticación, cuota persistente y una licencia que autorice mostrar los datos a otros usuarios.
+
+Si no hay cobertura, la moneda no es EUR o falla el proveedor, se mantiene la valoración anterior y sigue disponible la entrada manual.
