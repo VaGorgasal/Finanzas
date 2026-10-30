@@ -37,7 +37,7 @@ La tabla user_backups aplica RLS con auth.uid()=user_id en SELECT/INSERT/UPDATE/
 
 Configurar autenticación por enlace de correo y SMTP de producción. Permitir exactamente el dominio estable del alojamiento y la ruta /cuenta como destino. Introducir URL y clave publishable en NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. Nunca exponer service_role en el cliente.
 
-**Antes de activar:** dos cuentas distintas no deben poder leer ni escribir copias ajenas; cuenta anónima sin acceso; carga concurrente rechazada por conflicto; subida/recuperación/exportación verificadas. Este SQL no se ha ejecutado contra un proyecto remoto en esta entrega.
+**Antes de activar:** dos cuentas distintas no deben poder leer ni escribir copias ajenas; cuenta anónima sin acceso; carga concurrente rechazada por conflicto; subida/recuperación/exportación verificadas. El esquema se ha aplicado y verificado en cxukahuesgrhxvobmlqc. Consulta infra/VERIFICATION.md para las comprobaciones y los pasos de activación pendientes.
 
 ### 2. Cuotas y cotizaciones
 
