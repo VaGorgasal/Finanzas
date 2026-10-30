@@ -1,4 +1,4 @@
-import type { PortfolioState, Instrument } from '../lib/types';
+import type { PortfolioState, Instrument } from '../lib/types.ts';
 
 export const demoInstruments: Instrument[] = [
   {

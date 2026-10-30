@@ -1,9 +1,9 @@
 'use client';
 import {useState} from 'react';
 import {usePortfolio} from '../context/PortfolioContext';
-import {lookupQuotes} from '../lib/market';
-import {prepareQuoteUpdates,type QuoteReport} from '../lib/batch-quotes';
-import {eur,todayIso} from '../lib/portfolio';
+import {lookupQuotes} from '../lib/market.ts';
+import {prepareQuoteUpdates,type QuoteReport} from '../lib/batch-quotes.ts';
+import {eur,todayIso} from '../lib/portfolio.ts';
 export function BatchPrices(){const {state,summary,applyPriceUpdates}=usePortfolio();const [busy,setBusy]=useState(false),[reports,setReports]=useState<QuoteReport[]>([]),[status,setStatus]=useState('');
  async function prepare(){setBusy(true);setStatus('');setReports([]);try{const ids=new Set(summary.holdings.filter(h=>h.units>1e-8).map(h=>h.instrument.id));setReports(await prepareQuoteUpdates(state.instruments.filter(a=>ids.has(a.id)),lookupQuotes,todayIso()));}finally{setBusy(false);}}
  const changes=reports.flatMap(r=>r.change?[r.change]:[]);

@@ -1,9 +1,9 @@
 'use client';
 import Link from 'next/link';
-import {useFinancialPlan} from '../context/useFinancialPlan';
+import {useFinancialPlan} from '../context/useFinancialPlan.ts';
 import {usePortfolio} from '../context/PortfolioContext';
-import {analyzePlan} from '../lib/financial-plan';
-import {eur,todayIso} from '../lib/portfolio';
+import {analyzePlan} from '../lib/financial-plan.ts';
+import {eur,todayIso} from '../lib/portfolio.ts';
 import {Section,Info,Tag} from './Common';
 export function FinancialReview(){const {plan,ready,error}=useFinancialPlan();const {summary}=usePortfolio();const unpriced=summary.holdings.some(h=>h.units>1e-8&&h.instrument.quoteSource==='demo');const r=analyzePlan(plan,unpriced?null:summary.marketValue,todayIso());
  return <Section title="Objetivos y capacidad financiera" extra={<Link className="textLink" href="/plan">Completar mi plan →</Link>}>

@@ -1,9 +1,10 @@
 'use client';
 import Link from 'next/link';
+import {GettingStarted} from '../components/GettingStarted';
 import { Header, Info, Pnl, Section, Tag } from '../components/Common';
 import { usePortfolio } from '../context/PortfolioContext';
-import { eur, nfmt, pct } from '../lib/portfolio';
-import { lessons } from '../data/lessons';
+import { eur, nfmt, pct } from '../lib/portfolio.ts';
+import { lessons } from '../data/lessons.ts';
 
 export default function Dashboard() {
   const {state, summary} = usePortfolio();
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const firstTodo=lessons.find(x=>!state.completedLessons.includes(x.id));
   return <>
     <Header eyebrow="TU ESPACIO FINANCIERO" title="Hola, futuro inversor 👋" description="Comprende lo que tienes. Decide con criterio, no con prisas." action={<Tag tone="amber">{state.demoMode?'MODO DEMO · importes ficticios':'CARTERA PERSONAL · EUR'}</Tag>}/>
+    <GettingStarted/>
     <div className="heroGrid">
       <section className="heroCard">
         <div className="heroEyebrow">VALOR ESTIMADO DE TU CARTERA</div>

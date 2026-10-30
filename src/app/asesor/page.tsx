@@ -4,8 +4,8 @@ import Link from 'next/link';
 import {FinancialReview} from '../../components/FinancialReview';
 import {Header,Section,Info,Tag} from '../../components/Common';
 import {usePortfolio} from '../../context/PortfolioContext';
-import {analyzePortfolio,defaultProfile,parseProfile,type InvestorProfile} from '../../lib/advisor';
-import {todayIso} from '../../lib/portfolio';
+import {analyzePortfolio,defaultProfile,parseProfile,type InvestorProfile} from '../../lib/advisor.ts';
+import {todayIso} from '../../lib/portfolio.ts';
 const KEY='brujula-investor-profile-v1';
 export default function AdvisorPage(){
  const {state,summary,ready}=usePortfolio();

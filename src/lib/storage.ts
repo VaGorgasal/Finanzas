@@ -1,8 +1,9 @@
-import type { CashEntry, Instrument, PortfolioState, Transaction } from './types';
-import { makeEmptyPortfolio } from '../data/empty';
-import { validateLedger, isValidDay, todayIso } from './portfolio';
-import { persistJson } from './persistence';
-import { validateCashEntries } from './cash';
+import type { CashEntry, Instrument, PortfolioState, Transaction } from './types.ts';
+import { makeEmptyPortfolio } from '../data/empty.ts';
+import { validateLedger, isValidDay, todayIso } from './portfolio.ts';
+import { persistJson } from './persistence.ts';
+import { validateCashEntries } from './cash.ts';
+import {validFx,convertToEur} from './fx.ts';
 export const STORAGE_KEY = 'brujula-financiera-v02';
 
 function isRecord(a: unknown): a is Record<string, unknown> {
@@ -31,6 +32,7 @@ export function parsePortfolio(input: unknown): PortfolioState {
     }
     identifiers.add(p.id); isins.add(p.isin);
   }
+  for(const t of transactions){if(t.fx && (!validFx(t.fx)||t.fx.date!==t.date||!isValidDay(t.fx.date)||t.type==='TRANSFER'||Math.abs(convertToEur(t.fx.amount,t.fx.eurPerUnit)-t.amount)>.00001||Math.abs(convertToEur(t.fx.fee,t.fx.eurPerUnit)-t.fee)>.00001))throw new Error('La conversión de una operación no concuerda con sus euros.');}
   const error = validateLedger(transactions, instruments);
   if (error) throw new Error(error);
   const cashEntries = input.cashEntries ?? [];
@@ -52,4 +54,9 @@ export function readPortfolio(): PortfolioState {
 }
 export function savePortfolio(p: PortfolioState): boolean {
   return persistJson(() => window.localStorage, STORAGE_KEY, p);
+}
+
+export function loadPortfolioSafely():{state:PortfolioState;error:string}{
+ try {const raw=window.localStorage.getItem(STORAGE_KEY);const p=raw?parsePortfolio(JSON.parse(raw)):makeEmptyPortfolio();return {state:p.demoMode?{...makeEmptyPortfolio(),completedLessons:p.completedLessons}:p,error:''};}
+ catch{return {state:makeEmptyPortfolio(),error:'No se pudo recuperar la cartera. El original se conserva sin sobrescribir. Descarga los datos originales e importa una copia válida para continuar.'};}
 }

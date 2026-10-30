@@ -1,10 +1,10 @@
 'use client';
 import { useState, type FormEvent } from 'react';
 import { QuoteLookup } from './QuoteLookup';
-import type { MarketQuote } from '../lib/market';
+import type { MarketQuote } from '../lib/market.ts';
 import { usePortfolio } from '../context/PortfolioContext';
-import { todayIso } from '../lib/portfolio';
-import type { AssetCategory, AssetKind, Instrument } from '../lib/types';
+import { todayIso } from '../lib/portfolio.ts';
+import type { AssetCategory, AssetKind, Instrument } from '../lib/types.ts';
 export function InstrumentForm({onDone}:{onDone:()=>void}){
   const {addInstrument}=usePortfolio();
   const [category,setCategory]=useState<AssetCategory>('otro');

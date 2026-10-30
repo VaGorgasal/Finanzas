@@ -1,3 +1,4 @@
+import type {FxRecord} from './fx.ts';
 export type AssetKind = 'fondo' | 'etf' | 'acción' | 'otro';
 export type AssetCategory = 'global' | 'tecnología' | 'sectorial' | 'otro';
 export type TransactionType = 'BUY' | 'SELL' | 'DIVIDEND' | 'TRANSFER';
@@ -29,6 +30,7 @@ export interface Transaction {
   targetInstrumentId?: string;
   targetUnits?: number;
   sequence?: number;
+  fx?: FxRecord;
 }
 
 export interface CashEntry {id:string;date:string;type:'DEPOSIT'|'WITHDRAW';amount:number;}

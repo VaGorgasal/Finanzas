@@ -1,6 +1,6 @@
 'use client';
 import { Header, Info, Section, Tag } from '../../components/Common';
-import { stories } from '../../data/stories';
+import { stories } from '../../data/stories.ts';
 import { usePortfolio } from '../../context/PortfolioContext';
 export default function MercadosPage(){
   const {state}=usePortfolio();

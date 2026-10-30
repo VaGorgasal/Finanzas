@@ -1,16 +1,18 @@
 'use client';
-import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
+import { useEffect,useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Header, Info, Pnl, Section, Tag } from '../../components/Common';
 import { QuoteLookup } from '../../components/QuoteLookup';
-import type { MarketQuote } from '../../lib/market';
+import type { MarketQuote } from '../../lib/market.ts';
 import { AccountingPanel } from '../../components/AccountingPanel';
 import { BatchPrices } from '../../components/BatchPrices';
+import {Performance} from '../../components/Performance';
+import Link from 'next/link';
 import { CsvImport } from '../../components/CsvImport';
 import { TransactionForm } from '../../components/TransactionForm';
 import { InstrumentForm } from '../../components/InstrumentForm';
 import { usePortfolio } from '../../context/PortfolioContext';
-import { eur, nfmt, pct, sortedTransactions, todayIso } from '../../lib/portfolio';
-import type { Instrument, Transaction } from '../../lib/types';
+import { eur, nfmt, pct, sortedTransactions, todayIso } from '../../lib/portfolio.ts';
+import type { Instrument, Transaction } from '../../lib/types.ts';
 
 function PriceEditor({asset,onDone}:{asset:Instrument,onDone:()=>void}){
   const {updatePrice}=usePortfolio();
@@ -25,6 +27,8 @@ function PriceEditor({asset,onDone}:{asset:Instrument,onDone:()=>void}){
 export default function CarteraPage(){
   const {state,summary,deleteTransaction,restoreDemo,startBlank,importJson}=usePortfolio();
   const unpriced = !state.demoMode && summary.holdings.some(h=>h.units>0 && h.instrument.quoteSource==='demo');
+  const [view,setView]=useState('positions');
+  useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
   const [editing,setEditing]=useState<Transaction|null>(null);
   const [showForm,setShowForm]=useState(false);
   const [showAssetForm,setShowAssetForm]=useState(false);
@@ -54,10 +58,11 @@ export default function CarteraPage(){
       <div className="metricCard"><span>Resultado total</span><strong>{unpriced ? '—' : <Pnl amount={summary.totalPnL}/>}</strong><small>Realizado + latente + dividendos</small></div>
       <div className="metricCard"><span>Resultado / compras</span><strong>{unpriced ? '—' : pct(summary.returnOnBuys)}</strong><small>No anualizado; sensible a rotación</small></div>
     </div>
-    <BatchPrices/>
-    <AccountingPanel/>
+    <div className="viewTabs" role="group" aria-label="Secciones de la cartera">{[['positions','Posiciones'],['operations','Operaciones'],['cash','Traspasos y efectivo'],['data','Importar y copias']].map(([id,label])=><button type="button" key={id} className="secondaryButton" aria-pressed={view===id} onClick={()=>setView(id)}>{label}</button>)}</div>
+    {view==='positions'&&<><BatchPrices/><Performance/></>}
+    {view==='cash'&&<AccountingPanel/>}
     <div className="contentGrid">
-      <Section className="span12" title="Productos de tu cartera" extra={<div className="toolbar">{!state.demoMode&&<button className="secondaryButton" onClick={()=>setShowAssetForm(!showAssetForm)}>{showAssetForm?'Cerrar':'＋ Añadir producto'}</button>}</div>}>
+      {view==='positions'&&<div className="span12" id="productos"><Section className="span12" title="Productos de tu cartera" extra={<div className="toolbar">{!state.demoMode&&<button className="secondaryButton" onClick={()=>setShowAssetForm(!showAssetForm)}>{showAssetForm?'Cerrar':'＋ Añadir producto'}</button>}</div>}>
         {showAssetForm&&!state.demoMode&&<div className="formInset"><h3>Nuevo producto</h3><InstrumentForm onDone={()=>setShowAssetForm(false)}/></div>}
         <div className="assetTableWrap"><table className="dataTable"><thead><tr><th>Producto</th><th>Participaciones</th><th>Coste medio</th><th>Precio actual</th><th>Valor</th><th>Resultado total</th><th/></tr></thead>
         <tbody>{summary.holdings.map(h=><tr key={h.instrument.id}><td><div className="assetName"><span className="assetDot" style={{background:h.instrument.color}}/><strong>{h.instrument.name}</strong></div><div className="tinyMuted">{h.instrument.kind.toUpperCase()} · {h.instrument.isin}</div></td><td>{nfmt(h.units,6)}</td><td>{eur(h.averageCost)}</td><td>{!state.demoMode && h.instrument.quoteSource==='demo' ? 'Sin precio real' : eur(h.instrument.price)}<div className="tinyMuted">{h.instrument.priceDate} · {h.instrument.quoteSource==='demo'?'DEMO':h.instrument.quoteSource==='eodhd'?'EODHD · cierre':'Manual'}</div></td><td><strong>{!state.demoMode && h.instrument.quoteSource==='demo' ? '—' : eur(h.value)}</strong></td><td>{!state.demoMode && h.instrument.quoteSource==='demo' ? '—' : <Pnl amount={h.totalPnL} percent={h.returnOnBuys}/>}</td><td>{priceEdit===h.instrument.id?<button className="textButton" onClick={()=>setPriceEdit(null)}>Cerrar</button>:<button className="textButton" onClick={()=>setPriceEdit(h.instrument.id)}>Cambiar precio</button>}</td></tr>)}
@@ -65,32 +70,35 @@ export default function CarteraPage(){
         {priceEdit&&<div className="formInset"><h3>Actualizar valoración · {state.instruments.find(x=>x.id===priceEdit)?.name}</h3><PriceEditor key={priceEdit} asset={state.instruments.find(x=>x.id===priceEdit)!} onDone={()=>setPriceEdit(null)}/></div>}
         <p className="hint">Precio manual por participación en euros. Una clase de fondo y un ETF tienen sus propias reglas de valoración. No se usan precios supuestos para simular rendimientos históricos.</p>
       </Section>
-      <Section className="span12" title="Operaciones" extra={!state.demoMode?<button className="primaryButton" disabled={!state.instruments.length} onClick={()=>{setEditing(null);setShowForm(x=>!x);}}>{showForm?'Cerrar formulario':'＋ Nueva operación'}</button>:<Tag>Exploración sin edición</Tag>}>
+      </div>}
+      {view==='operations'&&<div className="span12" id="operaciones"><Section className="span12" title="Operaciones" extra={!state.demoMode?<button className="primaryButton" disabled={!state.instruments.length} onClick={()=>{setEditing(null);setShowForm(x=>!x);}}>{showForm?'Cerrar formulario':'＋ Nueva operación'}</button>:<Tag>Exploración sin edición</Tag>}>
         {showForm&&!state.demoMode&&<div className="formInset"><h3>{editing?'Editar operación':'Registrar una operación'}</h3><TransactionForm key={editing?.id??'new'} editing={editing} onDone={()=>{setShowForm(false);setEditing(null);setStatus('Operación guardada.');}}/></div>}
         {status&&<p role="status" className="statusMsg">{status} <button className="textButton" onClick={()=>setStatus('')}>Cerrar</button></p>}
         <div className="assetTableWrap"><table className="dataTable"><thead><tr><th>Fecha</th><th>Producto</th><th>Movimiento</th><th>Importe</th><th>Participaciones</th><th>Comisión</th><th/></tr></thead><tbody>
           {sortedTransactions(state.transactions).reverse().map(tx=>{const asset=state.instruments.find(x=>x.id===tx.instrumentId);
-            return <tr key={tx.id}><td>{tx.date}</td><td>{asset?.name??'—'}</td><td><span className={`eventType ${tx.type.toLowerCase()}`}>{tx.type==='BUY'?'Compra':tx.type==='SELL'?'Venta':tx.type==='TRANSFER'?'Traspaso':'Dividendo'}</span></td><td>{tx.type==='TRANSFER'?'—':eur(tx.amount)}</td><td>{tx.type==='DIVIDEND'?'—':nfmt(tx.units,6)}</td><td>{eur(tx.fee)}</td><td>{!state.demoMode&&<div className="tableActions">{tx.type!=='TRANSFER'&&<button className="textButton" onClick={()=>{setEditing(tx);setShowForm(true);setStatus('');}}>Editar</button>}<button className="textButton danger" onClick={()=>onDelete(tx.id)}>Borrar</button></div>}</td></tr>;
+            return <tr key={tx.id}><td>{tx.date}{tx.fx&&<div className="tinyMuted">{tx.fx.amount} {tx.fx.currency} · cambio {tx.fx.eurPerUnit} EUR · {tx.fx.source}</div>}</td><td>{asset?.name??'—'}</td><td><span className={`eventType ${tx.type.toLowerCase()}`}>{tx.type==='BUY'?'Compra':tx.type==='SELL'?'Venta':tx.type==='TRANSFER'?'Traspaso':'Dividendo'}</span></td><td>{tx.type==='TRANSFER'?'—':eur(tx.amount)}</td><td>{tx.type==='DIVIDEND'?'—':nfmt(tx.units,6)}</td><td>{eur(tx.fee)}</td><td>{!state.demoMode&&<div className="tableActions">{tx.type!=='TRANSFER'&&<button className="textButton" onClick={()=>{setEditing(tx);setShowForm(true);setStatus('');}}>Editar</button>}<button className="textButton danger" onClick={()=>onDelete(tx.id)}>Borrar</button></div>}</td></tr>;
           })}
           {!state.transactions.length&&<tr><td colSpan={7} className="muted">No hay operaciones registradas. Pulsa «Nueva operación» para empezar.</td></tr>}
         </tbody></table></div>
       </Section>
-      <Section className="span7" title="Cómo calculamos la rentabilidad">
+      </div>}
+      {view==='positions'&&<Section className="span12" title="Cómo calculamos la rentabilidad">
         <div className="explainList"><div><strong>Ganancia realizada</strong><p>Ventas netas menos coste asignado a las participaciones vendidas. Se utiliza coste medio ponderado móvil, no necesariamente la regla fiscal aplicable.</p></div>
         <div><strong>Ganancia latente</strong><p>Valor actual de las participaciones restantes menos su coste pendiente.</p></div>
         <div><strong>Resultado total</strong><p>Ganancias realizadas + latentes + dividendos netos. Equivale a valor actual + cobros netos − desembolsos totales.</p></div></div>
         <div className="miniStats"><div>Realizado + dividendos <strong>{eur(summary.realizedPnL)}</strong></div><div>Latente <strong>{unpriced ? '—' : eur(summary.unrealizedPnL)}</strong></div></div>
         <p className="hint">El porcentaje mostrado divide el resultado total entre el coste de todas las compras, incluidas comisiones. No es rentabilidad anualizada ni TIR; la rotación y el calendario de aportaciones afectan a su interpretación. No se calculan impuestos, divisas, retenciones ni ajustes de eventos corporativos.</p>
       </Section>
-      <Section className="span5" title="Tus datos, bajo control">
-        <p className="muted">Sin registro ni backend. Todo se guarda en tu navegador. Puedes guardar una copia JSON para recuperarla después.</p>
-        <CsvImport/>
+      }
+      {view==='data'&&<Section className="span12" title="Tus datos, bajo control">
+        <p className="muted">Los cambios se guardan en este navegador. Mi cuenta permite gestionar una copia en la nube cuando está configurada. Mi plan financiero exporta la copia completa con el perfil.</p>
+        <p><Link className="textLink" href="/cuenta">Mi cuenta y copias entre dispositivos →</Link></p><p><Link className="textLink" href="/plan">Exportar copia completa →</Link></p><CsvImport/>
         <div className="actionStack"><button className="secondaryButton" onClick={download}>↓ Exportar cartera (.json)</button><button className="secondaryButton" onClick={()=>inputRef.current?.click()}>↑ Importar copia (.json)</button>
           <input ref={inputRef} type="file" accept="application/json,.json" className="visuallyHidden" onChange={onImport}/>
           <button className="secondaryButton" onClick={()=>{if(window.confirm('¿Restaurar la demostración? Esto sobrescribe los datos locales. Exporta antes si quieres guardar una copia.')){restoreDemo();setStatus('Demostración restaurada.');}}}>Ver demostración con datos ficticios</button>
           {!state.demoMode&&<button className="secondaryButton dangerOutline" onClick={()=>{if(window.confirm('¿Borrar los productos y operaciones de tu cartera? Exporta una copia antes.')){startBlank();setStatus('Cartera vaciada.');}}}>Vaciar mi cartera</button>}
         </div>
-      </Section>
+      </Section>}
     </div>
   </>;
 }

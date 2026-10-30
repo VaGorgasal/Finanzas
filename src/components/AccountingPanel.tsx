@@ -1,9 +1,9 @@
 'use client';
 import {useState,type FormEvent} from 'react';
 import {usePortfolio} from '../context/PortfolioContext';
-import type {Transaction,CashEntry} from '../lib/types';
-import {calculateCash} from '../lib/cash';
-import {eur,nfmt,todayIso} from '../lib/portfolio';
+import type {Transaction,CashEntry} from '../lib/types.ts';
+import {calculateCash} from '../lib/cash.ts';
+import {eur,nfmt,todayIso} from '../lib/portfolio.ts';
 import {Info,Section} from './Common';
 function TransferForm({editing,onDone}:{editing:Transaction|null;onDone:()=>void}){const {state,addTransaction,editTransaction}=usePortfolio();const funds=state.instruments.filter(a=>a.kind==='fondo');const [from,setFrom]=useState(editing?.instrumentId??funds[0]?.id??''),[to,setTo]=useState(editing?.targetInstrumentId??funds[1]?.id??''),[date,setDate]=useState(editing?.date??todayIso()),[units,setUnits]=useState(String(editing?.units??'')),[targetUnits,setTargetUnits]=useState(String(editing?.targetUnits??'')),[sequence,setSequence]=useState(editing?.sequence??Math.max(0,...state.transactions.filter(t=>t.type==='TRANSFER'&&t.date===todayIso()).map(t=>t.sequence??0))+1),[error,setError]=useState('');
  function submit(e:FormEvent){e.preventDefault();const tx:Transaction={id:editing?.id??crypto.randomUUID(),instrumentId:from,targetInstrumentId:to,type:'TRANSFER',date,units:Number(units),targetUnits:Number(targetUnits),amount:0,fee:0,sequence};const r=editing?editTransaction(tx):addTransaction(tx);if(!r.ok){setError(r.error);return;}onDone();}

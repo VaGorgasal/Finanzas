@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { Header, Section, Tag } from '../../components/Common';
-import { lessons } from '../../data/lessons';
+import { lessons } from '../../data/lessons.ts';
 import { usePortfolio } from '../../context/PortfolioContext';
 export default function AcademiaPage(){
   const {state,completeLesson}=usePortfolio();

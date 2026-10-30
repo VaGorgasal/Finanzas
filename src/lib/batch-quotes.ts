@@ -1,5 +1,5 @@
-import type {Instrument} from './types';
-import type {MarketQuote} from './market';
+import type {Instrument} from './types.ts';
+import type {MarketQuote} from './market.ts';
 export type PriceChange={id:string;price:number;date:string;symbol:string;oldPrice:number;oldDate:string;oldSource:Instrument['quoteSource'];oldSymbol?:string};
 export type QuoteReport={id:string;name:string;status:'ready'|'unchanged'|'skipped'|'error';message:string;change?:PriceChange};
 export async function prepareQuoteUpdates(instruments:Instrument[],lookup:(isin:string)=>Promise<MarketQuote[]>,today:string):Promise<QuoteReport[]>{const reports:QuoteReport[]=[];let quota=false;

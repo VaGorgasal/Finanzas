@@ -1,4 +1,4 @@
-import type {Holding,Instrument,PortfolioSummary,Transaction} from './types';
+import type {Holding,Instrument,PortfolioSummary,Transaction} from './types.ts';
 export const EPS=1e-8;
 export function isValidDay(s:string):boolean{if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const d=new Date(s+'T12:00:00Z');return !Number.isNaN(d.valueOf())&&d.toISOString().slice(0,10)===s;}
 export function todayIso():string{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}

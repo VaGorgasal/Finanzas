@@ -15,7 +15,8 @@ export function normalizeQuotes(input:unknown, isin:string, maxDate=new Date().t
   });
 }
 export async function lookupQuotes(isin:string):Promise<MarketQuote[]> {
-  const response=await fetch('/api/market?isin='+encodeURIComponent(isin));
+  const {remoteFetch}=await import('./supabase.ts');
+  const response=await remoteFetch('/api/market?isin='+encodeURIComponent(isin));
   const data=await response.json();
   if (!response.ok) throw new Error(data.error || 'No se ha podido consultar el proveedor.');
   return data.quotes;

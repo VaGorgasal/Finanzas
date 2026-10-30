@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { normalizeQuotes } from '../../../lib/market';
+import { normalizeQuotes } from '../../../lib/market.ts';
+import {requireAccess,serviceFailure} from '../../../lib/server-access.ts';
 export const runtime='nodejs';
 const cache=new Map<string,{until:number; quotes:ReturnType<typeof normalizeQuotes>}>();
 let windowStart=0, requests=0;
 export async function GET(request:NextRequest) {
   const isin=(request.nextUrl.searchParams.get('isin')||'').trim().toUpperCase();
   if (!/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin)) return NextResponse.json({error:'Introduce un ISIN válido de 12 caracteres.'},{status:400});
+  try{await requireAccess(request,'market');}catch(e){return serviceFailure(e);}
   const key=process.env.EODHD_API_KEY;
   if (!key) return NextResponse.json({error:'El proveedor de precios no está configurado en el servidor.'},{status:503});
   const now=Date.now(), hit=cache.get(isin);

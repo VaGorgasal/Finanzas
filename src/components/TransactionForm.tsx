@@ -1,8 +1,8 @@
 'use client';
 import { useState, type FormEvent } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { todayIso } from '../lib/portfolio';
-import type { Transaction, TransactionType } from '../lib/types';
+import { todayIso } from '../lib/portfolio.ts';
+import type { Transaction, TransactionType } from '../lib/types.ts';
 
 function makeId() { return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `tx-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
 export function TransactionForm({editing,onDone}:{editing:Transaction|null,onDone:()=>void}) {

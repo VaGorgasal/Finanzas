@@ -1,4 +1,4 @@
-import type {PortfolioState,PortfolioSummary} from './types';
+import type {PortfolioState,PortfolioSummary} from './types.ts';
 export type InvestorProfile={goal:'aprender'|'vivienda'|'jubilación'|'patrimonio'; horizonYears:number; emergencyMonths:number; lossTolerance:'baja'|'media'|'alta'};
 export type Advice={id:string;priority:'alta'|'media'|'informativa';title:string;evidence:string;meaning:string;action:string;href:string};
 export const defaultProfile:InvestorProfile={goal:'aprender',horizonYears:5,emergencyMonths:0,lossTolerance:'media'};

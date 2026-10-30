@@ -1,7 +1,7 @@
 'use client';
 import {useState} from 'react';
-import {lookupQuotes,type MarketQuote} from '../lib/market';
-import {eur} from '../lib/portfolio';
+import {lookupQuotes,type MarketQuote} from '../lib/market.ts';
+import {eur} from '../lib/portfolio.ts';
 export function QuoteLookup({isin,onSelect}:{isin:string;onSelect:(quote:MarketQuote)=>void}) {
   const [busy,setBusy]=useState(false), [error,setError]=useState('');
   const [quotes,setQuotes]=useState<MarketQuote[]>([]);

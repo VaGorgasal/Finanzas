@@ -2,8 +2,8 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import {Header,Section,Tag} from '../../components/Common';
-import {faqEntries,faqCategories} from '../../data/faq';
-import {filterFaq} from '../../lib/faq';
+import {faqEntries,faqCategories} from '../../data/faq.ts';
+import {filterFaq} from '../../lib/faq.ts';
 export default function FaqPage(){const [query,setQuery]=useState(''),[category,setCategory]=useState('Todas');const results=filterFaq(faqEntries,query,category);
  function reset(){setQuery('');setCategory('Todas');}
  return <><Header eyebrow="AYUDA PARA USAR BRÚJULA" title="Preguntas frecuentes" description="Encuentra respuestas sobre tu cartera, las valoraciones y tu plan financiero." action={<Tag>{faqEntries.length} respuestas</Tag>}/>
