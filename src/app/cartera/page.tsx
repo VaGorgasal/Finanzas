@@ -25,7 +25,7 @@ function PriceEditor({asset,onDone}:{asset:Instrument,onDone:()=>void}){
 }
 
 export default function CarteraPage(){
-  const {state,summary,deleteTransaction,restoreDemo,startBlank,importJson}=usePortfolio();
+  const {state,summary,deleteTransaction,restoreDemo,startBlank,importJson,recoveryError}=usePortfolio();
   const unpriced = !state.demoMode && summary.holdings.some(h=>h.units>0 && h.instrument.quoteSource==='demo');
   const [view,setView]=useState('positions');
   useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
@@ -37,7 +37,7 @@ export default function CarteraPage(){
   const inputRef=useRef<HTMLInputElement>(null);
   const onDelete=(id:string)=>{if(!window.confirm('¿Eliminar esta operación? La rentabilidad se recalculará.'))return;
     const result=deleteTransaction(id);setStatus(result.ok?'Operación eliminada.':result.error);};
-  function download(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  function download(){if(recoveryError){setStatus('Descarga los datos originales desde el aviso de recuperación.');return;}const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
     const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='brujula-cartera-v02.json';a.click();URL.revokeObjectURL(url);}
   async function onImport(e:ChangeEvent<HTMLInputElement>){const file=e.target.files?.[0];if(!file)return;
     try {if(file.size>2_000_000)throw new Error('El archivo es demasiado grande.');
