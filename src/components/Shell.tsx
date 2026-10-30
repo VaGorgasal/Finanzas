@@ -29,7 +29,7 @@ export function Shell({children}:{children:ReactNode}) {
     </aside>
     <div className="mainWrap">
       <div className="mobileNav"><Link href="/" className="mobileBrand">✦ Brújula</Link><div>{links.map(x=><Link key={x.href} href={x.href} className={path===x.href?'selected':''}>{x.label}</Link>)}</div></div>
-      <main className="mainContent">{storageError && <div className="notice" role="alert"><strong>No se han podido guardar los cambios.</strong> El navegador ha bloqueado el almacenamiento o no queda espacio. Conserva esta pestaña abierta y exporta tu cartera desde Mi cartera para no perderla.</div>}{children}</main>
+      <main className="mainContent"><div className="notice"><strong>Beta · Datos en este navegador.</strong> No hay sincronización entre dispositivos. Exporta una copia antes de borrar datos o cambiar de navegador. <Link href="/faq#backup">Cómo guardar una copia</Link></div>{storageError && <div className="notice" role="alert"><strong>No se han podido guardar los cambios.</strong> El navegador ha bloqueado el almacenamiento o no queda espacio. Conserva esta pestaña abierta y exporta tu cartera desde Mi cartera para no perderla.</div>}{children}</main>
       <footer className="appFooter"><span>Brújula Financiera © 2026 · Proyecto educativo. No es asesoramiento financiero personalizado.</span><span>{storageError ? 'Cambios sin guardar · Exporta una copia' : 'Datos guardados en este navegador · EUR'}</span></footer>
     </div>
   </div>;

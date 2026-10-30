@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   title:'Brújula Financiera — Aprende a invertir',
   description:'Tu primera cartera, tus operaciones, y formación financiera explicada paso a paso.',
   icons:{icon:'/icon.svg'},
+  robots:{index:false,follow:false},
 };
 export default function RootLayout({children}:{children:React.ReactNode}) {
   return <html lang="es"><body><PortfolioProvider><Shell>{children}</Shell></PortfolioProvider></body></html>;

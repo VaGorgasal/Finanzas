@@ -2,7 +2,7 @@
 
 Web educativa para principiantes: **cartera por operaciones**, valoración manual, resumen de mercado **ilustrativo** y cinco lecciones interactivas. Se ha migrado la idea y los contenidos del HTML V0.1 a un proyecto **Next.js App Router + TypeScript** modular, con almacenamiento local y pruebas unitarias del cálculo.
 
-> **Sin cotizaciones ni noticias en directo.** Las cifras del modo demostración son inventadas, incluida la valoración de los dos productos. No se conecta con Trade Republic ni ofrece asesoramiento de inversión personalizado.
+> **Sin noticias en directo ni cotizaciones en tiempo real.** Los precios de último cierre pueden consultarse mediante EODHD si está configurado el secreto del servidor. Las cifras del modo demostración son inventadas, incluida la valoración de los dos productos. No se conecta con Trade Republic ni ofrece asesoramiento de inversión personalizado.
 
 ## Requisitos
 
@@ -116,7 +116,7 @@ Crea primero el repositorio vacío en GitHub. Sustituye `TU_USUARIO`. El proyect
 4. Pulsa **Deploy**. La URL generada mostrará la web, pero **cada navegador conservará su propia cartera local** (no hay login ni sincronización de datos).
 5. Las nuevas confirmaciones en la rama principal generarán despliegues automáticos según la integración. Usa ramas y pull requests para probar cambios antes de publicar.
 
-No hacen falta variables de entorno para la V0.2. **No se ha efectuado ningún despliegue real desde esta entrega.**
+La entrada manual funciona sin secretos. Para consultas de precios, configura EODHD_API_KEY como secreto de servidor en el entorno de destino. El archivo local no se transfiere a Vercel. No se ha completado el despliegue: la creación por la conexión devolvió 403 y la sesión web requiere completar la autenticación.
 
 ## Limitaciones y seguridad
 
@@ -190,3 +190,16 @@ Las divisas siguen pendientes: la cartera y el registro de efectivo trabajan ún
 ## Preguntas frecuentes
 
 La sección /faq incluye 26 respuestas sobre primeros pasos, cartera y contabilidad, precios, plan y asesor, y datos e importación. Permite buscar sin distinguir tildes ni mayúsculas, combinar filtros por tema y desplegar respuestas con controles HTML nativos. Cada respuesta enlaza a la sección correspondiente. Los contenidos están en src/data/faq.ts y el filtro en src/lib/faq.ts; deben actualizarse cuando cambie el comportamiento del producto. La búsqueda funciona localmente y no envía consultas ni datos de cartera a terceros.
+
+
+## Preparación de beta privada
+
+Repositorio: VaGorgasal/Finanzas; rama main; framework Next.js; raíz del repositorio; Node 22; instalación npm ci. Antes de desplegar, ejecutar npm run test, npm run lint -- --max-warnings 0, npm run build y npm run typecheck.
+
+Crear el proyecto en el equipo DeadEmber y configurar protección de despliegue ANTES de habilitar el proveedor. Si el plan solo protege Preview, usar un despliegue Preview protegido y comprobar el acceso anónimo también a /api/market. No publicar una URL de producción sin protección como beta privada. Las etiquetas noindex no constituyen control de acceso.
+
+Configurar EODHD_API_KEY como Secret solo en el entorno protegido que se use. No guardar la clave en Git ni usar NEXT_PUBLIC_. La cuota en memoria actual sirve solo para pruebas restringidas; antes de una beta abierta se necesitan cuota persistente, control de acceso y licencia de datos adecuada.
+
+La beta muestra aviso de almacenamiento local en todas las páginas y no solicita indexación. Los datos de Codespaces no se migran automáticamente al dominio de Vercel: exportar en el origen e importar en el destino. El perfil del asesor se configura aparte.
+
+Validación pendiente en Vercel: protección anónima de página y API, cartera inicialmente vacía, importación de una copia ficticia, persistencia tras recarga, exportación y recuperación, precio con fecha y fuente, FAQ y navegación móvil. No declarar el servicio publicado hasta verificar una URL READY.
