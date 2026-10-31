@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './design.css';
+import './interior.css';
 import { AccountProvider } from '../context/AccountContext';
 import { Shell } from '../components/Shell';
 export const metadata: Metadata = {

@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-export function Header({eyebrow,title,description,action}:{eyebrow:string,title:string,description:string,action?:ReactNode}) {
-  return <header className="pageHeader"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p className="subtitle">{description}</p></div>{action}</header>;
+import {Icon} from './Icon';
+export function Header({eyebrow,title,description,action,tone='interior'}:{eyebrow:string;title:string;description:string;action?:ReactNode;tone?:'interior'|'overview'}) {
+  return <header className={'pageHeader '+(tone==='interior'?'interiorHeader':'overviewHeader')}><div className="headerCopy"><div className="eyebrow">{eyebrow}</div><h1>{title}</h1><p className="subtitle">{description}</p></div>{tone==='interior'&&<div className="headerCompass" aria-hidden="true"><Icon name="compass" size={180}/></div>}{action&&<div className="headerActions">{action}</div>}</header>;
 }
-export function Section({title,extra,children,className=''}:{title?:string,extra?:ReactNode,children:ReactNode,className?:string}) {
-  return <section className={`panel ${className}`}><div className="panelHeading">{title&&<h2>{title}</h2>}{extra}</div>{children}</section>;
+export function Section({title,extra,children,className='',id}:{title?:string;extra?:ReactNode;children:ReactNode;className?:string;id?:string}) {
+  return <section id={id} className={`panel ${className}`}><div className="panelHeading">{title&&<h2>{title}</h2>}{extra}</div>{children}</section>;
 }
 export function Tag({children,tone='neutral'}:{children:ReactNode,tone?:'neutral'|'mint'|'amber'|'red'}) {
   return <span className={`tag tag-${tone}`}>{children}</span>;

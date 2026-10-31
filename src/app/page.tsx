@@ -15,7 +15,7 @@ export default function Dashboard() {
   const active = summary.holdings.filter(x=>x.units>0.00000001);
   const firstTodo=lessons.find(x=>!state.completedLessons.includes(x.id));
   return <>
-    <Header eyebrow="TU ESPACIO FINANCIERO" title="Tu dinero, con perspectiva." description="Menos ruido. Más claridad sobre lo que tienes y lo que quieres conseguir." action={<Tag tone="amber">{state.demoMode?'MODO DEMO · importes ficticios':'TU ESPACIO PERSONAL'}</Tag>}/>
+    <Header tone="overview" eyebrow="TU ESPACIO FINANCIERO" title="Tu dinero, con perspectiva." description="Menos ruido. Más claridad sobre lo que tienes y lo que quieres conseguir." action={<Tag tone="amber">{state.demoMode?'MODO DEMO · importes ficticios':'TU ESPACIO PERSONAL'}</Tag>}/>
     <GettingStarted/>
     {state.demoMode && <Info tone="amber"><strong>Estás explorando una simulación.</strong> Los 72 € y los valores de mercado son ficticios. Para cargar operaciones reales, entra en Mi cartera y pulsa «Empezar mi cartera».</Info>}
     {!state.demoMode && !state.instruments.length && !notInvesting && <Info><strong>Empieza con tus inversiones.</strong> Añade los productos que tienes, sus precios de valoración y tus compras reales desde Mi cartera. No se incluyen inversiones de ejemplo.</Info>}

@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.7
+# Brújula Financiera · V0.8
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -116,3 +116,10 @@ Verificación nueva en `tests/watchlist.test.mjs`: moneda/identidad, consenso in
 Nueva dirección visual en `src/app/design.css`: verde bosque, marfil y lima, títulos editoriales, jerarquía de cifras y estados. Navegación agrupada por patrimonio, ideas y herramientas; barra superior con estado de guardado y cuenta; navegación inferior móvil con cuatro accesos y menú modal completo (Escape, foco y cierre al navegar). Incluye salto al contenido y reducción de movimiento según preferencias del sistema.
 
 El inicio prioriza panorama personal, siguientes pasos, indicadores y objetivos; los estados vacíos tienen acciones claras. No se dibujan gráficos financieros ni se añaden cifras de muestra. Conserva el cálculo de patrimonio y objetivos, las señales de datos pendientes y las funciones de cartera/seguimiento. Los avisos de recuperación y sincronización pendiente continúan visibles. No cambia la configuración de EODHD ni el almacenamiento.
+
+
+### Espacio interior V0.8
+
+Todas las páginas interiores usan una cabecera editorial verde bosque, títulos serif claros y el mismo motivo de brújula que la landing. El inicio conserva su composición propia. Nuevos espacios de trabajo: cartera con valor y resultados agrupados; plan con navegación por secciones, balance y presupuesto separados y vista previa del borrador; seguimiento con colecciones laterales y ficha de idea; consultas con compositor, ejemplos y guía de contexto; noticias en rejilla editorial; cuenta con identidad, acciones y formulario de contraseña desplegable (abierto en recuperación). No cambia los proveedores ni la lógica de autenticación/cálculo.
+
+Las pestañas de cartera conservan su sección en el fragmento URL al recargar. Detalles ampliables para fuentes y precios; errores y avisos de datos pendientes siguen visibles. Datos sensibles no se incluyen en la URL. Comprobar las pantallas interiores en el dominio de producción, no solo la portada; los despliegues anteriores conservan su propia interfaz.
