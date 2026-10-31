@@ -3,6 +3,8 @@ import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from 
 import type {User} from '@supabase/supabase-js';
 import {usePathname} from 'next/navigation';
 import {AccessWelcome} from '../components/AccessWelcome';
+import {PasswordRecovery} from '../components/PasswordRecovery';
+import {recoveryRequested,rememberRecovery,resumeRecovery,forgetRecovery,recoveryStorage,recoveryFinishedUrl} from '../lib/password-recovery.ts';
 import {browserDatabase} from '../lib/supabase.ts';
 import {createBackup,parseBackup,restoreBackupExtras} from '../lib/backup.ts';
 import {makeEmptyPortfolio} from '../data/empty.ts';
@@ -46,14 +48,14 @@ function Gate({user,configured,onStatus,controllerRef,children}:{user:User|null;
 export function AccountProvider({children}:{children:ReactNode}){
  const configured=!!(process.env.NEXT_PUBLIC_SUPABASE_URL&&process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
  const [user,setUser]=useState<User|null>(null),[ready,setReady]=useState(false),[recovery,setRecovery]=useState(false),[sync,setSync]=useState<SyncState>({phase:'loading',message:'Preparando tu cuenta…'});
- const controllerRef=useRef<ProfileSync<Backup>|null>(null);
- useEffect(()=>{const db=browserDatabase();let alive=true;let events=0;if(!db){queueMicrotask(()=>{if(alive)setReady(true);});return ()=>{alive=false;};}
-  const {data}=db.auth.onAuthStateChange((event,session)=>{events++;if(!alive)return;setUser(session?.user??null);if(event==='PASSWORD_RECOVERY')setRecovery(true);if(event==='SIGNED_OUT')setRecovery(false);setReady(true);});
-  const observed=events;void db.auth.getSession().then(async({data,error})=>{if(error)throw error;const actual=data.session?await db.auth.getUser():null;if(actual?.error)throw actual.error;if(alive&&events===observed){setUser(actual?.data.user??null);setReady(true);}}).catch(()=>{if(alive)setSync({phase:'error',message:'No se ha podido verificar la sesión. Recarga para volver a intentarlo.'});});
+ const controllerRef=useRef<ProfileSync<Backup>|null>(null);const requestedRef=useRef<boolean|null>(null);
+ useEffect(()=>{requestedRef.current??=recoveryRequested(window.location.href);let requested=requestedRef.current;const db=browserDatabase();let alive=true;let events=0;if(!db){queueMicrotask(()=>{if(alive)setReady(true);});return ()=>{alive=false;};}
+  const {data}=db.auth.onAuthStateChange((event,session)=>{events++;if(!alive)return;setUser(session?.user??null);if(session?.user){const recovering=event==='PASSWORD_RECOVERY'||requested||resumeRecovery(recoveryStorage(),session.user.id);if(recovering){requested=false;requestedRef.current=false;rememberRecovery(recoveryStorage(),session.user.id);}setRecovery(recovering);}if(event==='SIGNED_OUT'){forgetRecovery(recoveryStorage());setRecovery(false);}setReady(true);});
+  const observed=events;void db.auth.getSession().then(async({data,error})=>{if(error)throw error;const actual=data.session?await db.auth.getUser():null;if(actual?.error)throw actual.error;if(alive&&events===observed){const current=actual?.data.user;setUser(current??null);if(current&&(requested||resumeRecovery(recoveryStorage(),current.id))){requested=false;requestedRef.current=false;rememberRecovery(recoveryStorage(),current.id);setRecovery(true);}setReady(true);}}).catch(()=>{if(alive)setSync({phase:'error',message:'No se ha podido verificar la sesión. Recarga para volver a intentarlo.'});});
   return ()=>{alive=false;data.subscription.unsubscribe();};
  },[]);
  async function signOut(){const saved=await controllerRef.current?.leave();if(saved===false&&!confirm('Hay cambios pendientes de guardar. Se conservarán en este navegador para esta cuenta. ¿Cerrar sesión igualmente?'))return false;const db=browserDatabase();if(!db)return false;const {error}=await db.auth.signOut();if(error){setSync({phase:'error',message:'No se pudo cerrar la sesión. Inténtalo de nuevo.'});return false;}return true;}
- const value:Account={user,configured,recovery,clearRecovery:()=>setRecovery(false),sync,resolve:async preference=>{await controllerRef.current?.resolve(preference);},signOut};
- return <Context.Provider value={value}>{ready?<Gate key={user?.id??'guest'} user={user} configured={configured} onStatus={setSync} controllerRef={controllerRef}>{children}</Gate>:<div className="accountLoading"><h1>Preparando Brújula…</h1><p>{sync.phase==='error'?sync.message:'Comprobando la sesión.'}</p></div>}</Context.Provider>;
+ const value:Account={user,configured,recovery,clearRecovery:()=>{forgetRecovery(recoveryStorage());window.history.replaceState(null,'',recoveryFinishedUrl(window.location.href));setRecovery(false);},sync,resolve:async preference=>{await controllerRef.current?.resolve(preference);},signOut};
+ return <Context.Provider value={value}>{ready?(recovery&&user?<PasswordRecovery email={user.email} onComplete={value.clearRecovery}/>:<Gate key={user?.id??'guest'} user={user} configured={configured} onStatus={setSync} controllerRef={controllerRef}>{children}</Gate>):<div className="accountLoading"><h1>Preparando Brújula…</h1><p>{sync.phase==='error'?sync.message:'Comprobando la sesión.'}</p></div>}</Context.Provider>;
 }
 export function useAccount(){const value=useContext(Context);if(!value)throw new Error('AccountProvider no disponible.');return value;}

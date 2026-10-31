@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.8
+# Brújula Financiera · V0.8.1
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -123,3 +123,10 @@ El inicio prioriza panorama personal, siguientes pasos, indicadores y objetivos;
 Todas las páginas interiores usan una cabecera editorial verde bosque, títulos serif claros y el mismo motivo de brújula que la landing. El inicio conserva su composición propia. Nuevos espacios de trabajo: cartera con valor y resultados agrupados; plan con navegación por secciones, balance y presupuesto separados y vista previa del borrador; seguimiento con colecciones laterales y ficha de idea; consultas con compositor, ejemplos y guía de contexto; noticias en rejilla editorial; cuenta con identidad, acciones y formulario de contraseña desplegable (abierto en recuperación). No cambia los proveedores ni la lógica de autenticación/cálculo.
 
 Las pestañas de cartera conservan su sección en el fragmento URL al recargar. Detalles ampliables para fuentes y precios; errores y avisos de datos pendientes siguen visibles. Datos sensibles no se incluyen en la URL. Comprobar las pantallas interiores en el dominio de producción, no solo la portada; los despliegues anteriores conservan su propia interfaz.
+
+
+### Recuperación de contraseña V0.8.1
+
+El evento PASSWORD_RECOVERY y el fragmento type=recovery se reconocen a nivel de aplicación, incluso si el proveedor redirige al inicio. La intención se captura antes de inicializar el cliente y muestra un formulario dedicado antes de cargar el perfil financiero. La ruta /cuenta?recuperar=1 también selecciona esta pantalla si existe sesión; no autoriza ni cambia credenciales por sí misma. Supabase sigue validando la sesión y updateUser. Mi cuenta ofrece siempre el formulario de contraseña visible para las cuentas creadas por correo sin contraseña.
+
+La pantalla se conserva al recargar mediante un marcador temporal de sessionStorage vinculado al UUID y sin tokens ni contraseñas. Se limpia tras guardar, salir de la recuperación o cerrar sesión. Solo se confirma el guardado cuando updateUser responde sin error. Permitir el destino exacto de producción /cuenta?recuperar=1 en Supabase Redirect URLs; el fallback al inicio con type=recovery también está cubierto. No cambia RLS, carteras ni claves de los servicios. Pruebas automatizadas de detección, persistencia, caducidad, separación de cuentas y rechazo de updateUser sin sesión. El titular debe comprobar el correo y guardar su propia contraseña; las pruebas no modifican ninguna cuenta real.
