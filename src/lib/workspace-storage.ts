@@ -1,4 +1,4 @@
-export const DATA_KEYS=['brujula-financiera-v02','brujula-financial-plan-v1','brujula-investor-profile-v1','brujula-history-v1','brujula-exposures-v1'] as const;
+export const DATA_KEYS=['brujula-financiera-v02','brujula-financial-plan-v1','brujula-investor-profile-v1','brujula-history-v1','brujula-exposures-v1','brujula-watchlist-v1'] as const;
 let scope='local';
 export function setStorageScope(value:string){scope=value;}
 export function scopedKey(key:string,owner=scope){return owner==='local'?key:`brujula:account:${owner}:${key}`;}

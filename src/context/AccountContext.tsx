@@ -13,7 +13,7 @@ import {PortfolioProvider} from './PortfolioContext';
 type Backup=ReturnType<typeof parseBackup>;
 type Account={user:User|null;configured:boolean;recovery:boolean;clearRecovery:()=>void;sync:SyncState;resolve:(preference:'remote'|'local')=>Promise<void>;signOut:()=>Promise<boolean>};
 const Context=createContext<Account|null>(null);
-function emptyBackup():Backup{return parseBackup({format:'brujula-complete-v2',portfolio:makeEmptyPortfolio(),plan:emptyPlan()});}
+function emptyBackup():Backup{return parseBackup({format:'brujula-complete-v3',portfolio:makeEmptyPortfolio(),plan:emptyPlan()});}
 function Gate({user,configured,onStatus,controllerRef,children}:{user:User|null;configured:boolean;onStatus:(s:SyncState)=>void;controllerRef:React.MutableRefObject<ProfileSync<Backup>|null>;children:ReactNode}){
  const [prepared,setPrepared]=useState(false),[epoch,setEpoch]=useState(0),[retry,setRetry]=useState(0);const path=usePathname();const ownerId=user?.id;const {sync:syncStatus}=useAccount();
  useEffect(()=>{

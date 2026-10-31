@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.5
+# Brújula Financiera · V0.6
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -92,3 +92,20 @@ Desde Mi cuenta o el inicio, abrir `/bienvenida`: punto de partida (experiencia 
 El inicio calcula próximos pasos a partir de los datos guardados: bienvenida pendiente, presupuesto incompleto, asignaciones incoherentes, inversiones por registrar, precios ficticios o antiguos, objetivos y aprendizaje. Muestra patrimonio declarado, excedente, reserva, liquidez tras reserva y objetivos con proyección sin rendimientos. Sin operaciones, el patrimonio sigue pendiente hasta que el usuario indique que no invierte; no se deduce un saldo cero por ausencia de datos. La demostración no se combina con el plan real.
 
 Las preferencias opcionales `plan.onboarding` se validan y conservan en la copia completa existente y su sincronización por usuario; los planes anteriores siguen siendo válidos. No requiere migración SQL ni nuevas variables. Pruebas de validación, compatibilidad de copias y selección de próximos pasos en `tests/home-overview.test.mjs`. La experiencia declarada solo adapta el recorrido educativo; no equivale a un test de idoneidad.
+
+
+### Seguimiento personal (V0.6)
+
+Nueva ruta `/seguimiento`: hasta 100 productos por ISIN único, 20 listas y 1 MB de datos. Acciones, fondos y ETF, filtros por lista/tipo/nombre, añadir desde cartera, entrada deseada, precio manual fechado, tesis, condiciones de revisión y enlace HTTPS de referencia. Editar o quitar seguimiento no modifica operaciones ni valoraciones de la cartera. Si cambia la moneda se eliminan los precios y análisis anteriores de esa ficha; no se convierten importes. No hay alertas en segundo plano ni operaciones automáticas. Las respuestas que lleguen después de cerrar/editar una ficha se descartan.
+
+Persistencia por usuario mediante la sexta clave monitorizada. La copia completa ahora se exporta como **brujula-complete-v3**, lee v1/v2, e incluye `watchlist`. Una restauración antigua sin seguimiento lo deja vacío tras la confirmación de reemplazo. Clientes antiguos rechazan v3 en lugar de sobrescribir silenciosamente las nuevas listas: abrir el último despliegue si aparece error de formato. No hay nuevas tablas ni cambios de políticas RLS: continúa usando `user_backups` y su control de revisiones. Las copias completas siguen limitadas a 2 MB en el backend.
+
+`GET /api/research?isin=...` busca cotizaciones con coincidencia exacta de ISIN. Después se elige explícitamente un símbolo y moneda: `&symbol=...` obtiene la ficha, y `&mode=history` consulta el último año de cierres ajustados. Solo se aceptan símbolos de la búsqueda verificada, origen EODHD fijo, sin URLs arbitrarias ni redirecciones. Cada petición requiere sesión no anónima validada, cuota persistente market y `MARKET_RESEARCH_LICENSE_CONFIRMED=true`, además de la activación remota y claves existentes. **No se activa esta variable automáticamente.** Confirmar cobertura, fundamentales e histórico del plan y derechos para mostrar a otros usuarios; un token existente no acredita estos permisos. No se ha verificado una consulta real con la clave del usuario.
+
+El endpoint de fundamentales usa v1.1; proveedor y JSON limitados a 2 MB, tiempo de espera 12 s por llamada, caché pública de datos de mercado por una hora y máximo 100 entradas por instancia. La cuota local/persistente cuenta peticiones de nuestra API, no unidades facturables: búsqueda, fundamentales e histórico pueden consumir varias unidades del proveedor. No ampliar presupuesto sin revisar el contrato. No hay consulta periódica ni lote automático.
+
+Acciones: objetivo de AnalystRatings o WallStreetTargetPrice cuando disponible, conteos completos agregados compra/mantener/venta y PER. El grupo más numeroso determina la etiqueta; empate Mixto. No se deriva una recomendación del objetivo. La fecha de consulta y la del registro general se muestran separadas; no se supone fecha ni horizonte de los analistas. La diferencia utiliza el precio guardado y la misma moneda; no es retorno esperado. EODHD advierte que AnalystRatings puede faltar fuera de EE. UU.
+
+ETF/fondos: sin precio objetivo o consenso de acciones; descripción, índice y muestra de posiciones cuando existan. Comisiones y comparativa de índice no se calculan sin datos verificados. El histórico dibuja precios ajustados (dividendos y splits), no rentabilidad personal, e incluye tabla accesible. No hay descarga de Investing: solo enlaces de referencia introducidos por el usuario. La IA no recibe automáticamente las notas de seguimiento.
+
+Verificación nueva en `tests/watchlist.test.mjs`: moneda/identidad, consenso incompleto, cotización verificada, licencia/autorización antes de proveedor, historial, copias antiguas/v3, aislamiento local por cuenta y reversión si falla el guardado. Completar la activación de datos reales y probar bajo el contrato del proveedor antes de anunciar cotizaciones o consenso operativos.

@@ -13,6 +13,7 @@ const links = [
   {href:'/asesor',label:'Asesor de cartera',glyph:'✦'},
   {href:'/',label:'Vista general',glyph:'◫'},
   {href:'/cartera',label:'Mi cartera',glyph:'◉'},
+  {href:'/seguimiento',label:'Seguimiento',glyph:'☆'},
   {href:'/mercados',label:'Contexto de mercado',glyph:'▤'},
   {href:'/academia',label:'Aprende',glyph:'▧'},
   {href:'/noticias',label:'Noticias',glyph:'▤'},
@@ -37,7 +38,7 @@ export function Shell({children}:{children:ReactNode}) {
         {links.map(item=><Link key={item.href} href={item.href} className={`navLink ${path === item.href ? 'active':''}`} aria-current={path===item.href?'page':undefined}><span className="navGlyph">{item.glyph}</span>{item.label}</Link>)}
       </nav>
       <div className="sideInfo"><span className="miniLight">◉</span> Tu progreso empieza con comprender lo que ya tienes.<p>5 minutos al día son suficientes para aprender algo útil.</p></div>
-      <div className="sidebarBottom">EDICIÓN 0.5 · {ready && state.demoMode ? 'MODO DEMO' : 'LOCAL / MANUAL'}</div>
+      <div className="sidebarBottom">EDICIÓN 0.6 · {ready && state.demoMode ? 'MODO DEMO' : 'LOCAL / MANUAL'}</div>
     </aside>
     <div className="mainWrap">
       <div className="mobileNav"><Link href="/" className="mobileBrand">✦ Brújula</Link><div>{links.map(x=><Link key={x.href} href={x.href} className={path===x.href?'selected':''}>{x.label}</Link>)}</div></div>

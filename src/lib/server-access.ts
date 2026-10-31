@@ -1,6 +1,7 @@
 import {createClient} from '@supabase/supabase-js';
 import {NextResponse} from 'next/server';
-export class ServiceError extends Error{constructor(message:string,public status=503){super(message);}}
+import {ServiceError} from './service-error.ts';
+export {ServiceError} from './service-error.ts';
 export async function requireAccess(request:Request,kind:'market'|'news'|'ai'){
  const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
  if(process.env.ENABLE_REMOTE_FEATURES!=='true'||!url||!key||!process.env.SUPABASE_SERVICE_ROLE_KEY)throw new ServiceError('Servicio pendiente de activación. Puedes seguir usando las funciones locales.');
