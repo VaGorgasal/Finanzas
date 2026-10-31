@@ -28,7 +28,7 @@ export default function CarteraPage(){
   const {state,summary,deleteTransaction,restoreDemo,startBlank,importJson,recoveryError}=usePortfolio();
   const unpriced = !state.demoMode && summary.holdings.some(h=>h.units>0 && h.instrument.quoteSource==='demo');
   const [view,setView]=useState('positions');
-  useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
+  useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');else if(window.location.hash==='#datos')setView('data');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
   const [editing,setEditing]=useState<Transaction|null>(null);
   const [showForm,setShowForm]=useState(false);
   const [showAssetForm,setShowAssetForm]=useState(false);

@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.4
+# Brújula Financiera · V0.5
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -83,3 +83,12 @@ Con Supabase configurado, las pantallas financieras requieren sesión. El perfil
 El sincronizador guarda al segundo de persistir cambios. El plan y el contexto del asesor siguen requiriendo confirmar su formulario; los borradores no se suben. La tabla existente user_backups contiene el perfil completo y no cambia sus políticas RLS. Una inserción inicial no sobrescribe una fila ya creada; las actualizaciones exigen la revisión conocida. Si hay otro cambio o un fallo, se conserva la copia local pendiente. Mi cuenta ofrece exportar y resolver. La salida intenta completar el guardado, avisa si queda pendiente y cambia a un espacio sin datos de la cuenta anterior. Las respuestas asíncronas de una sesión terminada se descartan.
 
 Pruebas cubren separación de usuarios, carga inicial sin subida vacía, guardado y deduplicación, reanudación de pendientes, conflictos y resolución explícita, actualización desde otro dispositivo, fallo de red y respuestas antiguas tras cambio de cuenta. El acceso real con contraseña, confirmación y recuperación deberá validarlo cada titular con su correo; no se crean cuentas reales ni se manipulan sus contraseñas durante las pruebas automatizadas.
+
+
+### Bienvenida e inicio personal (V0.5)
+
+Desde Mi cuenta o el inicio, abrir `/bienvenida`: punto de partida (experiencia e inversiones), balance y presupuesto, objetivo opcional y resumen. Cada paso se guarda expresamente; se puede volver atrás o continuar después. Los datos guardados se recuperan al volver, aunque la guía vuelve a su primer paso. No se fuerza introducir inversiones ni se convierten campos vacíos en cero. El borrador de un paso no confirmado no se guarda. Añadir un objetivo conserva los anteriores; revisarlos o modificarlos desde Mi plan financiero.
+
+El inicio calcula próximos pasos a partir de los datos guardados: bienvenida pendiente, presupuesto incompleto, asignaciones incoherentes, inversiones por registrar, precios ficticios o antiguos, objetivos y aprendizaje. Muestra patrimonio declarado, excedente, reserva, liquidez tras reserva y objetivos con proyección sin rendimientos. Sin operaciones, el patrimonio sigue pendiente hasta que el usuario indique que no invierte; no se deduce un saldo cero por ausencia de datos. La demostración no se combina con el plan real.
+
+Las preferencias opcionales `plan.onboarding` se validan y conservan en la copia completa existente y su sincronización por usuario; los planes anteriores siguen siendo válidos. No requiere migración SQL ni nuevas variables. Pruebas de validación, compatibilidad de copias y selección de próximos pasos en `tests/home-overview.test.mjs`. La experiencia declarada solo adapta el recorrido educativo; no equivale a un test de idoneidad.
