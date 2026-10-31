@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { PortfolioProvider } from '../context/PortfolioContext';
+import { AccountProvider } from '../context/AccountContext';
 import { Shell } from '../components/Shell';
 export const metadata: Metadata = {
   title:'Brújula Financiera — Aprende a invertir',
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
   robots:{index:false,follow:false},
 };
 export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="es"><body><PortfolioProvider><Shell>{children}</Shell></PortfolioProvider></body></html>;
+  return <html lang="es"><body><AccountProvider><Shell>{children}</Shell></AccountProvider></body></html>;
 }

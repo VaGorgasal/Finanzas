@@ -1,4 +1,6 @@
 'use client';
+import {workspaceStorage} from '../../lib/workspace-storage.ts';
+
 import {useEffect,useState,type FormEvent} from 'react';
 import Link from 'next/link';
 import {FinancialReview} from '../../components/FinancialReview';
@@ -13,7 +15,7 @@ export default function AdvisorPage(){
  const [draft,setDraft]=useState<InvestorProfile>(defaultProfile);
  const [status,setStatus]=useState('');
  useEffect(()=>{
-  try {const raw=localStorage.getItem(KEY);const saved=raw?parseProfile(JSON.parse(raw)):null;
+  try {const raw=workspaceStorage().getItem(KEY);const saved=raw?parseProfile(JSON.parse(raw)):null;
    if(saved){
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProfile(saved);setDraft(saved);
@@ -21,7 +23,7 @@ export default function AdvisorPage(){
   } catch {setStatus('No se ha podido recuperar tu perfil. Puedes completarlo de nuevo.');}
  },[]);
  function save(e:FormEvent){e.preventDefault();const valid=parseProfile(draft);if(!valid){setStatus('Revisa los datos del perfil.');return;}
-  setProfile(valid);try{localStorage.setItem(KEY,JSON.stringify(valid));setStatus('Contexto guardado en este navegador.');}catch{setStatus('Contexto aplicado a esta sesión, pero el navegador no permite guardarlo.');}
+  setProfile(valid);try{workspaceStorage().setItem(KEY,JSON.stringify(valid));setStatus('Contexto guardado en este navegador.');}catch{setStatus('Contexto aplicado a esta sesión, pero el navegador no permite guardarlo.');}
  }
  const advice=analyzePortfolio(state,summary,profile,todayIso());
  return <><Header eyebrow="TU CARTERA, CON CONTEXTO" title="Asesor de cartera" description="Diagnósticos explicables sobre los datos que has registrado." action={<Tag>Motor de reglas · v1</Tag>}/>

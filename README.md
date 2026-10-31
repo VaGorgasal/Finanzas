@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.3
+# Brújula Financiera · V0.4
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -33,9 +33,9 @@ Crear un proyecto Supabase propio de Brújula en la organización elegida por su
 
 Aplicar `infra/schema.sql` una vez mediante el SQL Editor o un flujo de migraciones del proyecto. Si se desea generar una migración, usar primero `supabase migration new` y copiar el SQL, sin inventar una entrada de historial. Revisar los avisores de seguridad antes de activar.
 
-La tabla user_backups aplica RLS con auth.uid()=user_id en SELECT/INSERT/UPDATE/DELETE y no concede acceso anónimo. La subida comprueba una revisión para detectar conflictos; no hay mezcla ni sobrescritura automática. El usuario comprueba/sube/recupera expresamente su copia. Cerrar sesión conserva los datos locales: en equipos compartidos usar perfiles separados.
+La tabla user_backups aplica RLS con auth.uid()=user_id en SELECT/INSERT/UPDATE/DELETE y no concede acceso anónimo. El perfil se carga al entrar y los cambios persistidos se sincronizan automáticamente con revisión para detectar conflictos. No se fusionan operaciones de versiones distintas. La caché local se separa por UUID; cambiar de cuenta remonta el estado y elimina la vista del usuario anterior. Un conflicto conserva la copia local y pide decidir la versión.
 
-Configurar autenticación por enlace de correo y SMTP de producción. Permitir exactamente el dominio estable del alojamiento y la ruta /cuenta como destino. Introducir URL y clave publishable en NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. Nunca exponer service_role en el cliente.
+Configurar autenticación Email (email y contraseña) y SMTP de producción para confirmación y recuperación. Permitir exactamente el dominio estable del alojamiento y la ruta /cuenta como destino. Introducir URL y clave publishable en NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY. Nunca exponer service_role en el cliente.
 
 **Antes de activar:** dos cuentas distintas no deben poder leer ni escribir copias ajenas; cuenta anónima sin acceso; carga concurrente rechazada por conflicto; subida/recuperación/exportación verificadas. El esquema se ha aplicado y verificado en cxukahuesgrhxvobmlqc. Consulta infra/VERIFICATION.md para las comprobaciones y los pasos de activación pendientes.
 
@@ -71,4 +71,15 @@ Noindex no constituye protección. Para beta privada configurar Deployment Prote
 
 ## Pendientes de alcance ampliado
 
-Activación/provisión y verificación real de base de datos, correo, noticias y modelo; acceso del conector al equipo va-gorgasal para gestionar configuración; licencias y presupuesto. Importadores específicos requieren extractos anonimizados de cada intermediario. Composición automática requiere proveedor y cobertura por clase. Multidivisa completa, cotizaciones FX automáticas y atribución activo/divisa; TWR e histórico de precios verificable; fiscalidad FIFO; refinanciación, pignoración y cuota final requieren motores adicionales. La sincronización actual es explícita por copia con control de conflictos, no colaboración en tiempo real.
+Activación/provisión y verificación real de base de datos, correo, noticias y modelo; acceso del conector al equipo va-gorgasal para gestionar configuración; licencias y presupuesto. Importadores específicos requieren extractos anonimizados de cada intermediario. Composición automática requiere proveedor y cobertura por clase. Multidivisa completa, cotizaciones FX automáticas y atribución activo/divisa; TWR e histórico de precios verificable; fiscalidad FIFO; refinanciación, pignoración y cuota final requieren motores adicionales. La sincronización es automática tras confirmar los formularios, con comprobación al recuperar el foco y cada 30 segundos en pestañas visibles. No es colaboración en tiempo real y detiene la subida ante un conflicto.
+
+
+## Cuentas y perfil por usuario (V0.4)
+
+Mi cuenta permite registro con signUp, acceso con signInWithPassword, recuperación con resetPasswordForEmail y creación/cambio de contraseña con updateUser. Contraseña nueva mínima de 12 caracteres y confirmación; no se registran credenciales ni se envían al repositorio. Supabase aplica además sus propias restricciones. La confirmación de correo y SMTP siguen siendo configuración del proyecto. Las cuentas creadas anteriormente por enlace pueden establecer una contraseña dentro de su sesión, o mediante recuperación, sin cambiar su UUID o email.
+
+Con Supabase configurado, las pantallas financieras requieren sesión. El perfil completo se carga antes de mostrarlo. Las claves locales usan el UUID de cuenta; ninguna cuenta nueva incorpora los datos sin dueño del antiguo modo local. Estos originales se conservan sin modificar: migrarlos mediante un archivo JSON exportado e importado por su propietario. La caché no se cifra y no protege frente a alguien con acceso físico al perfil de navegador o sus herramientas de desarrollo.
+
+El sincronizador guarda al segundo de persistir cambios. El plan y el contexto del asesor siguen requiriendo confirmar su formulario; los borradores no se suben. La tabla existente user_backups contiene el perfil completo y no cambia sus políticas RLS. Una inserción inicial no sobrescribe una fila ya creada; las actualizaciones exigen la revisión conocida. Si hay otro cambio o un fallo, se conserva la copia local pendiente. Mi cuenta ofrece exportar y resolver. La salida intenta completar el guardado, avisa si queda pendiente y cambia a un espacio sin datos de la cuenta anterior. Las respuestas asíncronas de una sesión terminada se descartan.
+
+Pruebas cubren separación de usuarios, carga inicial sin subida vacía, guardado y deduplicación, reanudación de pendientes, conflictos y resolución explícita, actualización desde otro dispositivo, fallo de red y respuestas antiguas tras cambio de cuenta. El acceso real con contraseña, confirmación y recuperación deberá validarlo cada titular con su correo; no se crean cuentas reales ni se manipulan sus contraseñas durante las pruebas automatizadas.

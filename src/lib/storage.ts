@@ -1,3 +1,4 @@
+import {workspaceStorage} from './workspace-storage.ts';
 import type { CashEntry, Instrument, PortfolioState, Transaction } from './types.ts';
 import { makeEmptyPortfolio } from '../data/empty.ts';
 import { validateLedger, isValidDay, todayIso } from './portfolio.ts';
@@ -46,17 +47,17 @@ export function parsePortfolio(input: unknown): PortfolioState {
 export function readPortfolio(): PortfolioState {
   if (typeof window === 'undefined') return makeEmptyPortfolio();
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const raw = workspaceStorage().getItem(STORAGE_KEY);
     const saved = raw ? parsePortfolio(JSON.parse(raw) as unknown) : makeEmptyPortfolio();
     // La demostración es una sesión explícita y no se recupera al abrir la aplicación.
     return saved.demoMode ? {...makeEmptyPortfolio(), completedLessons:saved.completedLessons} : saved;
   } catch { return makeEmptyPortfolio(); }
 }
 export function savePortfolio(p: PortfolioState): boolean {
-  return persistJson(() => window.localStorage, STORAGE_KEY, p);
+  return persistJson(() => workspaceStorage(), STORAGE_KEY, p);
 }
 
 export function loadPortfolioSafely():{state:PortfolioState;error:string}{
- try {const raw=window.localStorage.getItem(STORAGE_KEY);const p=raw?parsePortfolio(JSON.parse(raw)):makeEmptyPortfolio();return {state:p.demoMode?{...makeEmptyPortfolio(),completedLessons:p.completedLessons}:p,error:''};}
+ try {const raw=workspaceStorage().getItem(STORAGE_KEY);const p=raw?parsePortfolio(JSON.parse(raw)):makeEmptyPortfolio();return {state:p.demoMode?{...makeEmptyPortfolio(),completedLessons:p.completedLessons}:p,error:''};}
  catch{return {state:makeEmptyPortfolio(),error:'No se pudo recuperar la cartera. El original se conserva sin sobrescribir. Descarga los datos originales e importa una copia válida para continuar.'};}
 }
