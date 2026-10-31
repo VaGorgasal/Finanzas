@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.6
+# Brújula Financiera · V0.7
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -109,3 +109,10 @@ Acciones: objetivo de AnalystRatings o WallStreetTargetPrice cuando disponible, 
 ETF/fondos: sin precio objetivo o consenso de acciones; descripción, índice y muestra de posiciones cuando existan. Comisiones y comparativa de índice no se calculan sin datos verificados. El histórico dibuja precios ajustados (dividendos y splits), no rentabilidad personal, e incluye tabla accesible. No hay descarga de Investing: solo enlaces de referencia introducidos por el usuario. La IA no recibe automáticamente las notas de seguimiento.
 
 Verificación nueva en `tests/watchlist.test.mjs`: moneda/identidad, consenso incompleto, cotización verificada, licencia/autorización antes de proveedor, historial, copias antiguas/v3, aislamiento local por cuenta y reversión si falla el guardado. Completar la activación de datos reales y probar bajo el contrato del proveedor antes de anunciar cotizaciones o consenso operativos.
+
+
+### Interfaz V0.7
+
+Nueva dirección visual en `src/app/design.css`: verde bosque, marfil y lima, títulos editoriales, jerarquía de cifras y estados. Navegación agrupada por patrimonio, ideas y herramientas; barra superior con estado de guardado y cuenta; navegación inferior móvil con cuatro accesos y menú modal completo (Escape, foco y cierre al navegar). Incluye salto al contenido y reducción de movimiento según preferencias del sistema.
+
+El inicio prioriza panorama personal, siguientes pasos, indicadores y objetivos; los estados vacíos tienen acciones claras. No se dibujan gráficos financieros ni se añaden cifras de muestra. Conserva el cálculo de patrimonio y objetivos, las señales de datos pendientes y las funciones de cartera/seguimiento. Los avisos de recuperación y sincronización pendiente continúan visibles. No cambia la configuración de EODHD ni el almacenamiento.

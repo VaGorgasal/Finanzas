@@ -1,49 +1,44 @@
 'use client';
-import {workspaceStorage} from '../lib/workspace-storage.ts';
-
+import {useEffect,useRef,type ReactNode} from 'react';
 import Link from 'next/link';
+import {usePathname} from 'next/navigation';
 import {useAccount} from '../context/AccountContext';
-import { usePathname } from 'next/navigation';
-import { usePortfolio } from '../context/PortfolioContext';
+import {usePortfolio} from '../context/PortfolioContext';
+import {workspaceStorage} from '../lib/workspace-storage.ts';
 import {downloadJson} from '../lib/backup.ts';
 import {STORAGE_KEY} from '../lib/storage.ts';
-import type { ReactNode } from 'react';
-const links = [
-  {href:'/plan',label:'Mi plan financiero',glyph:'◎'},
-  {href:'/asesor',label:'Asesor de cartera',glyph:'✦'},
-  {href:'/',label:'Vista general',glyph:'◫'},
-  {href:'/cartera',label:'Mi cartera',glyph:'◉'},
-  {href:'/seguimiento',label:'Seguimiento',glyph:'☆'},
-  {href:'/mercados',label:'Contexto de mercado',glyph:'▤'},
-  {href:'/academia',label:'Aprende',glyph:'▧'},
-  {href:'/noticias',label:'Noticias',glyph:'▤'},
-  {href:'/consultas',label:'Consultas IA',glyph:'✧'},
-  {href:'/exposiciones',label:'Exposiciones',glyph:'◈'},
-  {href:'/divisas',label:'Divisas',glyph:'⇄'},
-  {href:'/simulador',label:'Simulador',glyph:'◇'},
-  {href:'/cuenta',label:'Mi cuenta',glyph:'◎'},
-  {href:'/faq',label:'Preguntas frecuentes',glyph:'?'},
+import {Icon,type IconName} from './Icon';
+type NavItem={href:string;label:string;icon:IconName};
+const groups:{label:string;items:NavItem[]}[]=[
+ {label:'Tu patrimonio',items:[{href:'/',label:'Vista general',icon:'home'},{href:'/plan',label:'Mi plan financiero',icon:'plan'},{href:'/cartera',label:'Mi cartera',icon:'wallet'},{href:'/seguimiento',label:'Seguimiento',icon:'watch'},{href:'/asesor',label:'Asesor de cartera',icon:'compass'}]},
+ {label:'Ideas y contexto',items:[{href:'/noticias',label:'Noticias',icon:'news'},{href:'/mercados',label:'Contexto de mercado',icon:'layers'},{href:'/consultas',label:'Consultas IA',icon:'chat'},{href:'/academia',label:'Aprende',icon:'learn'}]},
+ {label:'Herramientas',items:[{href:'/exposiciones',label:'Exposiciones',icon:'layers'},{href:'/divisas',label:'Divisas',icon:'swap'},{href:'/simulador',label:'Simulador',icon:'calculator'},{href:'/faq',label:'Preguntas frecuentes',icon:'help'}]},
 ];
-export function Shell({children}:{children:ReactNode}) {
-  const path = usePathname();
-  const {user,configured,sync}=useAccount();
-  const {state, ready, storageError,recoveryError} = usePortfolio();
-  return <div className="appShell">
-    <aside className="sidebar">
-      <Link className="brand" href="/" aria-label="Brújula Financiera, inicio">
-        <span className="brandMark">✦</span><span>brújula<span className="brandLight">.financiera</span><small>APRENDE A INVERTIR</small></span>
-      </Link>
-      <div className="sideLabel">TU ESPACIO</div>
-      <nav className="sideNav" aria-label="Navegación principal">
-        {links.map(item=><Link key={item.href} href={item.href} className={`navLink ${path === item.href ? 'active':''}`} aria-current={path===item.href?'page':undefined}><span className="navGlyph">{item.glyph}</span>{item.label}</Link>)}
-      </nav>
-      <div className="sideInfo"><span className="miniLight">◉</span> Tu progreso empieza con comprender lo que ya tienes.<p>5 minutos al día son suficientes para aprender algo útil.</p></div>
-      <div className="sidebarBottom">EDICIÓN 0.6 · {ready && state.demoMode ? 'MODO DEMO' : 'LOCAL / MANUAL'}</div>
-    </aside>
-    <div className="mainWrap">
-      <div className="mobileNav"><Link href="/" className="mobileBrand">✦ Brújula</Link><div>{links.map(x=><Link key={x.href} href={x.href} className={path===x.href?'selected':''}>{x.label}</Link>)}</div></div>
-      <main className="mainContent">{user?<div className={'accountSync '+(['conflict','error','pending'].includes(sync.phase)?'warning':'')} role="status"><strong>{sync.message}</strong> <Link href="/cuenta">Mi cuenta</Link></div>:<div className="notice"><strong>{configured?'Tu perfil es personal.':'Modo local.'}</strong> {configured?'Entra con email y contraseña para cargar tu perfil.':'Exporta una copia antes de borrar datos del navegador.'} <Link href="/cuenta">Mi cuenta</Link></div>}{recoveryError&&<div className="info info-amber" role="alert"><strong>Recuperación pendiente.</strong> {recoveryError} <button className="secondaryButton" onClick={()=>{try{downloadJson({format:'brujula-recovery-raw',raw:workspaceStorage().getItem(STORAGE_KEY)},'brujula-datos-originales.json');}catch{alert('El navegador impide leer los datos originales.');}}}>Descargar original sin modificar</button><Link href="/plan">Importar copia válida</Link></div>}{storageError && <div className="notice" role="alert"><strong>No se han podido guardar los cambios.</strong> El navegador ha bloqueado el almacenamiento o no queda espacio. Conserva esta pestaña abierta y exporta tu cartera desde Mi cartera para no perderla.</div>}{children}</main>
-      <footer className="appFooter"><span>Brújula Financiera © 2026 · Proyecto educativo. No es asesoramiento financiero personalizado.</span><span>{storageError ? 'Cambios sin guardar · Exporta una copia' : (user?(sync.phase==='saved'?'Perfil guardado en tu cuenta · EUR':'Cambios pendientes o sin conexión · EUR'):'Datos locales · EUR')}</span></footer>
-    </div>
-  </div>;
+const all=groups.flatMap(g=>g.items);
+const mobile=[all[0],all[2],all[3],all[1]];
+function Brand(){return <Link className="brand" href="/" aria-label="Brújula Financiera, inicio"><span className="brandMark"><Icon name="compass" size={27}/></span><span>brújula<span className="brandLight">.</span><small>FINANCIERA</small></span></Link>;}
+export function Shell({children}:{children:ReactNode}){
+ const path=usePathname(),menuRef=useRef<HTMLDialogElement>(null);
+ useEffect(()=>{const media=window.matchMedia('(min-width:901px)');const close=()=>{if(media.matches)menuRef.current?.close();};media.addEventListener('change',close);return ()=>media.removeEventListener('change',close);},[]);
+ const {user,configured,sync}=useAccount();const {state,ready,storageError,recoveryError}=usePortfolio();
+ const current=all.find(x=>x.href===path)?.label??(path==='/bienvenida'?'Bienvenida':'Mi cuenta');
+ const group=groups.find(g=>g.items.some(x=>x.href===path))?.label??'Tu espacio';
+ const warning=user&&['error','conflict','pending'].includes(sync.phase);
+ const status=user?(sync.phase==='saved'?'Guardado en tu cuenta':sync.phase==='saving'?'Guardando…':sync.phase==='loading'?'Cargando perfil…':'Pendiente de guardar'):(configured?'Inicia sesión':'Solo en este navegador');
+ const avatar=user?.email?.slice(0,1).toUpperCase()??'T';
+ function navItems(close=false){return groups.map(g=><div className="navGroup" key={g.label}><div className="sideLabel">{g.label}</div><nav className="sideNav" aria-label={g.label}>{g.items.map(x=><Link href={x.href} key={x.href} className={'navLink '+(path===x.href?'active':'')} aria-current={path===x.href?'page':undefined} onClick={()=>{if(close)menuRef.current?.close();}}><Icon name={x.icon}/><span>{x.label}</span>{path===x.href&&<span className="navActiveMark"/>}</Link>)}</nav></div>);}
+ return <div className="appShell"><a className="skipLink" href="#contenido">Ir al contenido</a>
+ <aside className="sidebar"><Brand/><div className="sideNavigation">{navItems()}</div><div className="sidebarAccount"><Link href="/cuenta" className="profileLink"><span className="avatar">{avatar}</span><span><strong>{user?'Mi espacio personal':'Tu espacio personal'}</strong><small>{user?'Gestionar mi cuenta':'Entrar o crear cuenta'}</small></span><Icon name="arrow" size={16}/></Link></div></aside>
+ <div className="mainWrap"><div className="workspaceBar"><div className="workspaceTrail"><span className="mobileCompass"><Icon name="compass"/></span><span>{group}</span><span className="trailSlash">/</span><strong>{current}</strong></div><div className="workspaceActions"><Link href="/cuenta" className={'saveIndicator '+(warning?'isPending':'')} title={user?sync.message:status}><span/>{status}</Link><Link href="/cuenta" className="topAvatar" aria-label="Mi cuenta">{avatar}</Link></div></div>
+ <main className="mainContent" id="contenido">
+ {ready&&state.demoMode&&<div className="notice demoNotice"><strong>Modo demostración.</strong> Estás viendo importes ficticios. <Link href="/cartera">Volver a mi cartera →</Link></div>}
+ {warning&&<div className="accountSync warning" role="status"><strong>{sync.message}</strong> <Link href="/cuenta">Revisar mi cuenta →</Link></div>}
+ {!user&&configured&&path!=='/cuenta'&&<div className="notice"><strong>Un espacio solo para ti.</strong> Entra para recuperar tu perfil. <Link href="/cuenta">Mi cuenta →</Link></div>}
+ {recoveryError&&<div className="info info-amber" role="alert"><strong>Recuperación pendiente.</strong> {recoveryError} <button className="secondaryButton" onClick={()=>{try{downloadJson({format:'brujula-recovery-raw',raw:workspaceStorage().getItem(STORAGE_KEY)},'brujula-datos-originales.json');}catch{alert('El navegador impide leer los datos originales.');}}}>Descargar original sin modificar</button><Link href="/plan">Importar copia válida</Link></div>}
+ {storageError&&<div className="info info-amber" role="alert"><strong>No se han podido guardar los cambios.</strong> Conserva esta pestaña y exporta una copia desde Mi cartera.</div>}{children}</main>
+ <footer className="appFooter"><span><strong>brújula.</strong> Tu dinero, con perspectiva.</span><span>Proyecto educativo · No es asesoramiento financiero personalizado.</span></footer>
+ </div>
+ <nav className="mobileDock" aria-label="Navegación móvil">{mobile.map((x,i)=><Link key={x.href} href={x.href} className={path===x.href?'selected':''} aria-current={path===x.href?'page':undefined}><Icon name={x.icon}/><span>{['Inicio','Cartera','Seguir','Mi plan'][i]}</span></Link>)}<button onClick={()=>menuRef.current?.showModal()} aria-haspopup="dialog" aria-controls="mobile-menu"><Icon name="menu"/><span>Más</span></button></nav>
+ <dialog className="mobileMenu" id="mobile-menu" ref={menuRef} aria-labelledby="mobile-menu-title"><div className="mobileMenuHead"><h2 id="mobile-menu-title">Tu brújula</h2><button className="menuClose" aria-label="Cerrar menú" onClick={()=>menuRef.current?.close()}><Icon name="close"/></button></div>{navItems(true)}<Link className="profileLink" href="/cuenta" onClick={()=>menuRef.current?.close()}><Icon name="user"/><span>Mi cuenta</span><Icon name="arrow"/></Link></dialog>
+ </div>;
 }

@@ -2,7 +2,7 @@
 import {createContext,useContext,useEffect,useRef,useState,type ReactNode} from 'react';
 import type {User} from '@supabase/supabase-js';
 import {usePathname} from 'next/navigation';
-import Link from 'next/link';
+import {AccessWelcome} from '../components/AccessWelcome';
 import {browserDatabase} from '../lib/supabase.ts';
 import {createBackup,parseBackup,restoreBackupExtras} from '../lib/backup.ts';
 import {makeEmptyPortfolio} from '../data/empty.ts';
@@ -41,7 +41,7 @@ function Gate({user,configured,onStatus,controllerRef,children}:{user:User|null;
  },[ownerId,configured,onStatus,controllerRef,retry]);
  if(!prepared)return <div className="accountLoading"><h1>Cargando tu perfil…</h1><p>{syncStatus.phase==='error'?syncStatus.message:'Conectando con los datos de tu cuenta.'}</p><button className="secondaryButton" onClick={()=>setRetry(r=>r+1)}>Reintentar conexión</button><button className="textButton" onClick={()=>browserDatabase()?.auth.signOut()}>Volver al acceso</button></div>;
  const publicPage=['/cuenta','/faq','/academia','/mercados'].includes(path);
- return <PortfolioProvider key={epoch}>{configured&&!user&&!publicPage?<div className="accountLoading"><h1>Tu perfil empieza con tu cuenta</h1><p>Entra con tu email y contraseña para ver tu cartera, plan y objetivos.</p><Link className="primaryButton" href="/cuenta">Entrar o crear una cuenta</Link></div>:children}</PortfolioProvider>;
+ return <PortfolioProvider key={epoch}>{configured&&!user&&!publicPage?<AccessWelcome/>:children}</PortfolioProvider>;
 }
 export function AccountProvider({children}:{children:ReactNode}){
  const configured=!!(process.env.NEXT_PUBLIC_SUPABASE_URL&&process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
