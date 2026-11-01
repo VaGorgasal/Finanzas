@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.8.1
+# Brújula Financiera · V0.8.3
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -9,7 +9,7 @@ Node 22 o superior. `npm ci`, `npm run test`, `npm run lint -- --max-warnings 0`
 ## Funciones locales disponibles
 
 - Inicio guiado con cuatro pasos, patrimonio del plan, efectivo registrado y fecha más antigua de las posiciones abiertas.
-- Cartera separada en posiciones, operaciones, traspasos y efectivo, e importación/copias.
+- Cartera separada en posiciones, operaciones e importación/copias. Alta por ISIN en un diálogo accesible.
 - Compras, ventas, dividendos y traspasos económicos entre fondos. Coste medio móvil, no fiscal FIFO. No se comprueba la elegibilidad al diferimiento fiscal ni periodos de liquidación.
 - Resultado = valor actual + ventas netas + dividendos netos − compras con costes. Resultado/compras no es anualizado.
 - TIR ACT/365 de inversiones: flujos de compras, ventas y dividendos, más valor final. Excluye efectivo sin invertir y traspasos. Solo se calcula con una fecha común de precios, sin operaciones posteriores, al menos 30 días y un patrón convencional de signos. No fuerza una raíz si puede haber varias.
@@ -133,3 +133,10 @@ La pantalla se conserva al recargar mediante un marcador temporal de sessionStor
 
 
 La política de contraseñas se comparte entre registro y recuperación/cambio mediante `account-validation.ts`. Se configura también en Supabase Auth: longitud mínima 8 y requisito de minúscula, mayúscula, número y símbolo. El inicio de sesión acepta las credenciales existentes sin aplicar retroactivamente esta validación del formulario.
+
+
+### Alta por ISIN V0.8.3
+
+Añadir producto abre un diálogo visible, con cierre, Escape y foco en el ISIN. Tras completar 12 caracteres consulta automáticamente /api/market (espera 500 ms, cancela la respuesta al cambiar el ISIN o cerrar). Una coincidencia rellena la ficha; si existen varios mercados se exige elegir uno. El guardado usa nombre, tipo declarado, moneda EUR, precio y fecha del proveedor y conserva su símbolo para futuras actualizaciones. No se adivinan categorías, riesgos, compras, participaciones ni precios sin cobertura. El registro manual es una opción explícita de respaldo.
+
+Se retira de Mi cartera la pestaña Traspasos y efectivo y su formulario. Los datos antiguos y los motores de cálculo/importación se conservan para no alterar carteras existentes. El fragmento antiguo #efectivo abre Operaciones. La búsqueda real sigue requiriendo las variables y la sesión del servicio de mercado; no se eluden sus controles ni cuotas. Pruebas de ficha por ISIN, tipo, selección ambigua, fecha, moneda y rechazo de respuestas ajenas.

@@ -3,7 +3,6 @@ import { useEffect,useRef, useState, type ChangeEvent, type FormEvent } from 're
 import { Header, Info, Pnl, Section, Tag } from '../../components/Common';
 import { QuoteLookup } from '../../components/QuoteLookup';
 import type { MarketQuote } from '../../lib/market.ts';
-import { AccountingPanel } from '../../components/AccountingPanel';
 import { BatchPrices } from '../../components/BatchPrices';
 import {Performance} from '../../components/Performance';
 import Link from 'next/link';
@@ -28,13 +27,15 @@ export default function CarteraPage(){
   const {state,summary,deleteTransaction,restoreDemo,startBlank,importJson,recoveryError}=usePortfolio();
   const unpriced = !state.demoMode && summary.holdings.some(h=>h.units>0 && h.instrument.quoteSource==='demo');
   const [view,setView]=useState('positions');
-  useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');else if(window.location.hash==='#datos')setView('data');else if(window.location.hash==='#efectivo')setView('cash');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
+  useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');else if(window.location.hash==='#datos')setView('data');else if(window.location.hash==='#efectivo')setView('operations');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
   const [editing,setEditing]=useState<Transaction|null>(null);
   const [showForm,setShowForm]=useState(false);
   const [showAssetForm,setShowAssetForm]=useState(false);
+  const assetDialog=useRef<HTMLDialogElement>(null);
+  function openProduct(){setShowAssetForm(true);assetDialog.current?.showModal();}
   const [priceEdit,setPriceEdit]=useState<string|null>(null);
   const [status,setStatus]=useState('');
-  function changeView(next:string){setView(next);const hashes:Record<string,string>={positions:'productos',operations:'operaciones',cash:'efectivo',data:'datos'};window.history.replaceState(null,'','#'+hashes[next]);}
+  function changeView(next:string){setView(next);const hashes:Record<string,string>={positions:'productos',operations:'operaciones',data:'datos'};window.history.replaceState(null,'','#'+hashes[next]);}
   const inputRef=useRef<HTMLInputElement>(null);
   const onDelete=(id:string)=>{if(!window.confirm('¿Eliminar esta operación? La rentabilidad se recalculará.'))return;
     const result=deleteTransaction(id);setStatus(result.ok?'Operación eliminada.':result.error);};
@@ -49,22 +50,21 @@ export default function CarteraPage(){
     finally{e.target.value='';}
   }
   return <>
-    <Header eyebrow="TU PATRIMONIO, EXPLICADO" title="Mi cartera" description="Registra cada compra y venta. El resultado se calcula a partir de tus movimientos y precios manuales." action={<><Tag tone={state.demoMode?'amber':'mint'}>{state.demoMode?'Simulación · 72 €':'Cartera personal'}</Tag>{!state.demoMode&&<button className="primaryButton" onClick={()=>{changeView('positions');setShowAssetForm(true);}}>＋ Añadir producto</button>}</>}/>
+    <Header eyebrow="TU PATRIMONIO, EXPLICADO" title="Mi cartera" description="Añade tus inversiones por ISIN y registra sus movimientos. Cada valoración conserva su fuente y fecha." action={<><Tag tone={state.demoMode?'amber':'mint'}>{state.demoMode?'Simulación · 72 €':'Cartera personal'}</Tag>{!state.demoMode&&<button className="primaryButton" onClick={openProduct}>＋ Añadir producto</button>}</>}/>
     {state.demoMode ? <Info tone="amber"><strong>Modo demostración.</strong> Las dos operaciones y todos los precios son inventados. Puedes explorar cómo funciona la aplicación o <button className="linkButton" onClick={()=>{if(window.confirm('¿Empezar tu cartera real? Se eliminarán las operaciones de demostración y tendrás que introducir precios auténticos.'))startBlank();}}>Empezar mi cartera en blanco →</button>. Para registrar movimientos reales, activa primero tu cartera personal.</Info> : <details className="sourceNote"><summary>Sobre tus precios y la conexión con tu intermediario</summary><p>No hay conexión con tu intermediario. Puedes consultar el último cierre en EUR desde «Cambiar precio» o introducir una valoración manual. Cada precio conserva su fuente y fecha.</p></details>}
-    {!state.demoMode && !state.instruments.length && <Info><strong>Añade tu primera inversión.</strong> Usa «Añadir producto» con el nombre, ISIN y precio real por participación de tu intermediario. Después registra compras, ventas y dividendos, o importa una copia JSON.</Info>}
+    {!state.demoMode && !state.instruments.length && <Info><strong>Añade tu primera inversión.</strong> Pulsa «Añadir producto» e introduce su ISIN. Buscaremos su ficha y último precio disponible. Después registra tus compras, ventas o dividendos.</Info>}
     {unpriced && <Info tone="amber"><strong>Actualiza tus precios.</strong> Algunas posiciones conservan precios de ejemplo. El valor total y la rentabilidad permanecerán ocultos hasta que introduzcas precios reales.</Info>}
     <section className="portfolioOverview" aria-label="Resumen de tu cartera"><div className="portfolioBalance"><span className="eyebrow">VALOR DE TUS POSICIONES</span><strong>{unpriced?'Sin valorar':eur(summary.marketValue)}</strong><p>Con los precios y fechas guardados en tu cartera.</p><div className="portfolioCounts"><span>{summary.holdings.filter(h=>h.units>1e-8).length} posiciones abiertas</span><span>{state.transactions.length} operaciones registradas</span></div></div><div className="portfolioFigures"><div><span>Aportaciones netas</span><strong>{eur(summary.netCashContributed)}</strong><small>Compras + costes − cobros</small></div><div><span>Resultado total</span><strong>{unpriced?'—':<Pnl amount={summary.totalPnL}/>}</strong><small>Realizado + latente + dividendos</small></div><div><span>Resultado / compras</span><strong>{unpriced?'—':pct(summary.returnOnBuys)}</strong><small>No anualizado</small></div></div></section>
-    <div className="viewTabs" role="group" aria-label="Secciones de la cartera">{[['positions','Posiciones'],['operations','Operaciones'],['cash','Traspasos y efectivo'],['data','Importar y copias']].map(([id,label])=><button type="button" key={id} className="secondaryButton" aria-pressed={view===id} onClick={()=>changeView(id)}>{label}</button>)}</div>
+    <div className="viewTabs" role="group" aria-label="Secciones de la cartera">{[['positions','Posiciones'],['operations','Operaciones'],['data','Importar y copias']].map(([id,label])=><button type="button" key={id} className="secondaryButton" aria-pressed={view===id} onClick={()=>changeView(id)}>{label}</button>)}</div>
     {view==='positions'&&<><BatchPrices/><Performance/></>}
-    {view==='cash'&&<AccountingPanel/>}
     <div className="contentGrid">
-      {view==='positions'&&<div className="span12" id="productos"><Section className="span12" title="Productos de tu cartera" extra={showAssetForm?<button className="textButton" onClick={()=>setShowAssetForm(false)}>Cerrar formulario</button>:undefined}>
-        {showAssetForm&&!state.demoMode&&<div className="formInset"><h3>Nuevo producto</h3><InstrumentForm onDone={()=>setShowAssetForm(false)}/></div>}
+      {view==='positions'&&<div className="span12" id="productos"><Section className="span12" title="Productos de tu cartera">
+        {status&&<p role="status" className="statusMsg">{status} <button className="textButton" onClick={()=>setStatus('')}>Cerrar</button></p>}
         <div className="assetTableWrap"><table className="dataTable"><thead><tr><th>Producto</th><th>Participaciones</th><th>Coste medio</th><th>Precio actual</th><th>Valor</th><th>Resultado total</th><th/></tr></thead>
         <tbody>{summary.holdings.map(h=><tr key={h.instrument.id}><td><div className="assetName"><span className="assetDot" style={{background:h.instrument.color}}/><strong>{h.instrument.name}</strong></div><div className="tinyMuted">{h.instrument.kind.toUpperCase()} · {h.instrument.isin}</div></td><td>{nfmt(h.units,6)}</td><td>{eur(h.averageCost)}</td><td>{!state.demoMode && h.instrument.quoteSource==='demo' ? 'Sin precio real' : eur(h.instrument.price)}<div className="tinyMuted">{h.instrument.priceDate} · {h.instrument.quoteSource==='demo'?'DEMO':h.instrument.quoteSource==='eodhd'?'EODHD · cierre':'Manual'}</div></td><td><strong>{!state.demoMode && h.instrument.quoteSource==='demo' ? '—' : eur(h.value)}</strong></td><td>{!state.demoMode && h.instrument.quoteSource==='demo' ? '—' : <Pnl amount={h.totalPnL} percent={h.returnOnBuys}/>}</td><td>{priceEdit===h.instrument.id?<button className="textButton" onClick={()=>setPriceEdit(null)}>Cerrar</button>:<button className="textButton" onClick={()=>setPriceEdit(h.instrument.id)}>Cambiar precio</button>}</td></tr>)}
         </tbody></table></div>
         {priceEdit&&<div className="formInset"><h3>Actualizar valoración · {state.instruments.find(x=>x.id===priceEdit)?.name}</h3><PriceEditor key={priceEdit} asset={state.instruments.find(x=>x.id===priceEdit)!} onDone={()=>setPriceEdit(null)}/></div>}
-        <p className="hint">Precio manual por participación en euros. Una clase de fondo y un ETF tienen sus propias reglas de valoración. No se usan precios supuestos para simular rendimientos históricos.</p>
+        <p className="hint">Precios por participación en euros, con fuente y fecha. Para incorporar el valor de tus inversiones, registra sus compras en Operaciones.</p>
       </Section>
       </div>}
       {view==='operations'&&<div className="span12" id="operaciones"><Section className="span12" title="Operaciones" extra={!state.demoMode?<button className="primaryButton" disabled={!state.instruments.length} onClick={()=>{setEditing(null);setShowForm(x=>!x);}}>{showForm?'Cerrar formulario':'＋ Nueva operación'}</button>:<Tag>Exploración sin edición</Tag>}>
@@ -96,5 +96,9 @@ export default function CarteraPage(){
         </div>
       </Section>}
     </div>
+    <dialog ref={assetDialog} className="productDialog" aria-labelledby="product-dialog-title" onClose={()=>setShowAssetForm(false)}>
+      <div className="productDialogHeading"><div><span className="eyebrow">AMPLÍA TU CARTERA</span><h2 id="product-dialog-title">Añadir producto</h2></div><button type="button" className="textButton" aria-label="Cerrar nuevo producto" onClick={()=>assetDialog.current?.close()}>✕</button></div>
+      {showAssetForm&&!state.demoMode&&<InstrumentForm onDone={asset=>{assetDialog.current?.close();changeView('positions');setStatus(asset.name+' añadido. Registra tu compra desde Operaciones para incorporar las participaciones.');}}/>}
+    </dialog>
   </>;
 }
