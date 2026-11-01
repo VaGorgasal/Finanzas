@@ -1,7 +1,7 @@
 'use client';
 import {useState,type FormEvent} from 'react';
 import {browserDatabase} from '../lib/supabase.ts';
-import {passwordIssue} from '../lib/account-validation.ts';
+import {passwordIssue,PASSWORD_MIN_LENGTH,PASSWORD_MAX_LENGTH,PASSWORD_HINT} from '../lib/account-validation.ts';
 export function PasswordUpdateForm({onSaved}:{onSaved?:()=>void}){
  const [password,setPassword]=useState(''),[confirmation,setConfirmation]=useState(''),[busy,setBusy]=useState(false),[status,setStatus]=useState(''),[saved,setSaved]=useState(false);
  async function submit(event:FormEvent){
@@ -14,9 +14,9 @@ export function PasswordUpdateForm({onSaved}:{onSaved?:()=>void}){
  }
  if(saved)return <div role="status" className="info"><strong>Contraseña guardada.</strong><p>Ya puedes entrar con tu email y la nueva contraseña.</p></div>;
  return <form onSubmit={submit} className="formStack">
- <div className="field"><label htmlFor="new-account-password">Nueva contraseña</label><input id="new-account-password" type="password" autoComplete="new-password" required minLength={12} maxLength={128} value={password} onChange={e=>setPassword(e.target.value)}/></div>
- <div className="field"><label htmlFor="confirm-account-password">Repite la nueva contraseña</label><input id="confirm-account-password" type="password" autoComplete="new-password" required minLength={12} maxLength={128} value={confirmation} onChange={e=>setConfirmation(e.target.value)}/></div>
- <p className="hint">Al menos 12 caracteres. Puedes usar una frase larga que no reutilices en otros servicios.</p>
+ <div className="field"><label htmlFor="new-account-password">Nueva contraseña</label><input id="new-account-password" type="password" autoComplete="new-password" required minLength={PASSWORD_MIN_LENGTH} maxLength={PASSWORD_MAX_LENGTH} value={password} onChange={e=>setPassword(e.target.value)}/></div>
+ <div className="field"><label htmlFor="confirm-account-password">Repite la nueva contraseña</label><input id="confirm-account-password" type="password" autoComplete="new-password" required minLength={PASSWORD_MIN_LENGTH} maxLength={PASSWORD_MAX_LENGTH} value={confirmation} onChange={e=>setConfirmation(e.target.value)}/></div>
+ <p className="hint">{PASSWORD_HINT}</p>
  <button className="primaryButton" disabled={busy}>{busy?'Guardando…':'Guardar nueva contraseña'}</button>
  {status&&<p role="alert" className="info">{status}</p>}
  </form>;

@@ -7,7 +7,12 @@ function harness(remote={payload:{value:1},revision:1,updatedAt:'now'},meta=null
  h.engine=new ProfileSync({read:()=>structuredClone(h.local),apply:p=>{h.local=structuredClone(p);},empty:()=>({value:0}),getMeta:()=>h.meta,setMeta:m=>{h.meta=m;},load:async()=>{h.loads++;return structuredClone(h.remote);},save:async(payload,revision)=>{if((h.remote?.revision??null)!==revision)throw new Error('conflict');const next=(revision??0)+1;h.remote={payload:structuredClone(payload),revision:next,updatedAt:'saved'};h.writes.push(structuredClone(h.remote));return {revision:next,updatedAt:'saved'};},status:s=>h.states.push(s),ready:()=>h.ready++,delay:1000000});
  return h;
 }
-test('contraseña nueva exige longitud y confirmación; no cambia el acceso existente',()=>{assert.equal(passwordIssue('una frase de prueba 123','una frase de prueba 123'),null);assert.ok(passwordIssue('corta','corta'));assert.ok(passwordIssue('una frase de prueba','otra'));});
+test('contraseña nueva exige 8 caracteres, mayúscula, minúscula, número, símbolo y confirmación',()=>{
+ const valid='Abcd12!x';assert.equal(passwordIssue(valid,valid),null);
+ for(const invalid of ['Ab1!xyz','Abcdefgh!','Abcdefg1','abcdef1!','ABCDEF1!','Abcdef1 ','Abcdef1é','Abcdef1😀'])assert.ok(passwordIssue(invalid,invalid),invalid);
+ assert.ok(passwordIssue(valid,'Abcd12!y'));assert.ok(passwordIssue('Aa1!'.repeat(33),'Aa1!'.repeat(33)));
+ for(const symbol of ['!','@','#','\\','"',"'",'`','~']){const value='Abcdef1'+symbol;assert.equal(passwordIssue(value,value),null);}
+});
 test('cada usuario tiene claves locales distintas y un adaptador conserva su propietario',()=>{
  const map=new Map([['legacy','anterior']]);globalThis.window={localStorage:{getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)},dispatchEvent(){}};
  setStorageScope('A');const a=workspaceStorage();a.setItem('portfolio','A');setStorageScope('B');const b=workspaceStorage();assert.equal(b.getItem('portfolio'),null);b.setItem('portfolio','B');a.setItem('portfolio','A2');assert.equal(a.getItem('portfolio'),'A2');assert.equal(b.getItem('portfolio'),'B');assert.notEqual(scopedKey('portfolio','A'),scopedKey('portfolio','B'));assert.equal(workspaceStorage('local').getItem('legacy'),'anterior');setStorageScope('local');delete globalThis.window;
