@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.8.3
+# Brújula Financiera · V0.8.4
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -140,3 +140,7 @@ La política de contraseñas se comparte entre registro y recuperación/cambio m
 Añadir producto abre un diálogo visible, con cierre, Escape y foco en el ISIN. Tras completar 12 caracteres consulta automáticamente /api/market (espera 500 ms, cancela la respuesta al cambiar el ISIN o cerrar). Una coincidencia rellena la ficha; si existen varios mercados se exige elegir uno. El guardado usa nombre, tipo declarado, moneda EUR, precio y fecha del proveedor y conserva su símbolo para futuras actualizaciones. No se adivinan categorías, riesgos, compras, participaciones ni precios sin cobertura. El registro manual es una opción explícita de respaldo.
 
 Se retira de Mi cartera la pestaña Traspasos y efectivo y su formulario. Los datos antiguos y los motores de cálculo/importación se conservan para no alterar carteras existentes. El fragmento antiguo #efectivo abre Operaciones. La búsqueda real sigue requiriendo las variables y la sesión del servicio de mercado; no se eluden sus controles ni cuotas. Pruebas de ficha por ISIN, tipo, selección ambigua, fecha, moneda y rechazo de respuestas ajenas.
+
+### Compra por importe V0.8.4
+
+En compras nuevas se puede introducir importe en EUR y precio de ejecución para calcular participaciones, incluidas fracciones. El precio inicial es una referencia fechada del producto, editable y distinta del precio histórico de ejecución. Las comisiones siguen separadas. Se conserva el modo de entrada por unidades y la edición de operaciones existentes abre ese modo para no recalcularlas.
