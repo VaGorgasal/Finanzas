@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.8.4
+# Brújula Financiera · V0.9.0-dev
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -19,7 +19,7 @@ Node 22 o superior. `npm ci`, `npm run test`, `npm run lint -- --max-warnings 0`
 - Conversión explícita de operaciones USD/GBP/CHF/JPY/CAD/AUD a base EUR: cambio en EUR por unidad de moneda, fuente y fecha. Conserva el original de las operaciones. Las valoraciones convertidas se guardan como manuales en EUR. No hay cuenta de efectivo multidivisa, FX automático, ni atribución separada del efecto divisa.
 - Exposición subyacente por composición JSON declarada, con fecha y URL fuente. Agrega identificadores iguales y muestra cobertura parcial y solapamientos. No descarga ni inventa posiciones de fondos. Las acciones directas aportan su ISIN. Usar la misma emisión/identificador en las composiciones para conciliar.
 - CSV estándar `date;isin;type;amount;units;fee`, o adaptador explícito para columnas equivalentes en español/inglés con coma o punto y coma. Fechas ISO o DD/MM/AAAA en adaptador. No adivina liquidaciones netas, signos, miles ni formatos específicos de bancos. Detecta reimportaciones y exige revisión de posibles duplicados con movimientos previos. Registrar productos antes de importar.
-- Copia completa v2: cartera, efectivo, plan guardado, perfil, historial y composiciones. Admite copias completas v1. Validación previa y reversión de claves si falla el almacenamiento. Las conversaciones de IA no se guardan.
+- Copia completa v4: cartera, efectivo, plan guardado, perfil, historial, composiciones, seguimiento y análisis. Admite copias completas v1–v3. Validación previa y reversión de claves si falla el almacenamiento. Las conversaciones de IA no se guardan.
 - Recuperación: un original local ilegible no se sobrescribe automáticamente. Se bloquean ediciones y se ofrece descargar el original para revisarlo e importar una copia válida.
 - Asesor de reglas explicables, academia y FAQ. Contexto de mercado contiene casos educativos, no noticias de actualidad.
 
@@ -144,3 +144,11 @@ Se retira de Mi cartera la pestaña Traspasos y efectivo y su formulario. Los da
 ### Compra por importe V0.8.4
 
 En compras nuevas se puede introducir importe en EUR y precio de ejecución para calcular participaciones, incluidas fracciones. El precio inicial es una referencia fechada del producto, editable y distinta del precio histórico de ejecución. Las comisiones siguen separadas. Se conserva el modo de entrada por unidades y la edición de operaciones existentes abre ese modo para no recalcularlas.
+
+### Motor de KPI · primera entrega de Análisis (desarrollo)
+
+Nueva ruta `/analisis` y seis prioridades en Inicio. Rentabilidad contable y TIR existentes; TWR y estadísticas históricas mediante importación explícita de series unitarizadas de rentabilidad total EUR, con fuente y fechas. Drawdown y recuperaciones, volatilidad 30/90/252, correlaciones alineadas, contribuciones con cobertura completa, benchmark por cartera/producto, matrices de exposición parcial, estrés lineal y liquidez/objetivos/pignoración con coeficientes declarados. Sin APIs ni IA nuevas. Cartera vacía, demostración, composición desconocida y muestras insuficientes nunca se representan como indicadores reales.
+
+[Metodología, formato, trazabilidad y límites](src/lib/kpi/README.md). La copia completa v4 conserva análisis y lee v1–v3; no usar clientes antiguos para editar estas copias. La primera entrega no implementa los conectores macro/fundamentales ni el informativo automático de Noticias: pertenecen al bloque siguiente. Rama `feature/portfolio-kpis`, revisión mediante PR; no se publica automáticamente en producción.
+
+Validación: `npm test`, `npm run lint -- --max-warnings 0`, `npm run build`, `npm run typecheck`. Nuevas pruebas en `tests/kpi.test.mjs` con datos ficticios aislados del producto. Sin cambios al motor contable ni políticas RLS.

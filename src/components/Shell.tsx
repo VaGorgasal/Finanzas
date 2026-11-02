@@ -10,8 +10,8 @@ import {STORAGE_KEY} from '../lib/storage.ts';
 import {Icon,type IconName} from './Icon';
 type NavItem={href:string;label:string;icon:IconName};
 const groups:{label:string;items:NavItem[]}[]=[
- {label:'Tu patrimonio',items:[{href:'/',label:'Vista general',icon:'home'},{href:'/plan',label:'Mi plan financiero',icon:'plan'},{href:'/cartera',label:'Mi cartera',icon:'wallet'},{href:'/seguimiento',label:'Seguimiento',icon:'watch'},{href:'/asesor',label:'Asesor de cartera',icon:'compass'}]},
- {label:'Ideas y contexto',items:[{href:'/noticias',label:'Noticias',icon:'news'},{href:'/mercados',label:'Contexto de mercado',icon:'layers'},{href:'/consultas',label:'Consultas IA',icon:'chat'},{href:'/academia',label:'Aprende',icon:'learn'}]},
+ {label:'Tu patrimonio',items:[{href:'/',label:'Vista general',icon:'home'},{href:'/plan',label:'Mi plan financiero',icon:'plan'},{href:'/cartera',label:'Mi cartera',icon:'wallet'},{href:'/seguimiento',label:'Seguimiento',icon:'watch'},{href:'/analisis',label:'Análisis',icon:'layers'},{href:'/asesor',label:'Asesor de cartera',icon:'compass'}]},
+ {label:'Ideas y contexto',items:[{href:'/noticias',label:'Noticias',icon:'news'},{href:'/mercados',label:'Mercados',icon:'layers'},{href:'/consultas',label:'Consultas IA',icon:'chat'},{href:'/academia',label:'Aprende',icon:'learn'}]},
  {label:'Herramientas',items:[{href:'/exposiciones',label:'Exposiciones',icon:'layers'},{href:'/divisas',label:'Divisas',icon:'swap'},{href:'/simulador',label:'Simulador',icon:'calculator'},{href:'/faq',label:'Preguntas frecuentes',icon:'help'}]},
 ];
 const all=groups.flatMap(g=>g.items);

@@ -1,3 +1,4 @@
+import {parseAnalysis,emptyAnalysis,ANALYSIS_KEY} from './kpi/data.ts';
 import {parseWatchlist,WATCH_KEY} from './watchlist.ts';
 import {workspaceStorage} from './workspace-storage.ts';
 import {parsePortfolio,STORAGE_KEY} from './storage.ts';
@@ -11,17 +12,17 @@ export const HISTORY_KEY='brujula-history-v1';
 export const EXPOSURES_KEY='brujula-exposures-v1';
 export function parseBackup(input:unknown){
  if(!input||typeof input!=='object')throw new Error('Copia no válida.');const x=input as Record<string,unknown>;
- if(!['brujula-complete-v1','brujula-complete-v2','brujula-complete-v3'].includes(String(x.format)))throw new Error('Formato de copia no reconocido.');
+ if(!['brujula-complete-v1','brujula-complete-v2','brujula-complete-v3','brujula-complete-v4'].includes(String(x.format)))throw new Error('Formato de copia no reconocido.');
  const profile=x.profile==null?null:parseProfile(x.profile);if(x.profile!=null&&!profile)throw new Error('Perfil no válido.');
- return {format:'brujula-complete-v3' as const,portfolio:parsePortfolio(x.portfolio),plan:parsePlan(x.plan),profile,history:parseSnapshots(x.history??[]),compositions:parseCompositions(x.compositions??[]),watchlist:parseWatchlist(x.watchlist??[])};
+ return {format:'brujula-complete-v4' as const,portfolio:parsePortfolio(x.portfolio),plan:parsePlan(x.plan),profile,history:parseSnapshots(x.history??[]),compositions:parseCompositions(x.compositions??[]),watchlist:parseWatchlist(x.watchlist??[]),analysis:parseAnalysis(x.analysis??emptyAnalysis())};
 }
 export function createBackup(portfolio:PortfolioState){
  const read=(key:string)=>{const raw=workspaceStorage().getItem(key);return raw?JSON.parse(raw):null;};
- return parseBackup({format:'brujula-complete-v3',portfolio,plan:read(PLAN_KEY)??emptyPlan(),profile:read(PROFILE_KEY),history:read(HISTORY_KEY)??[],compositions:read(EXPOSURES_KEY)??[],watchlist:read(WATCH_KEY)??[]});
+ return parseBackup({format:'brujula-complete-v4',portfolio,plan:read(PLAN_KEY)??emptyPlan(),profile:read(PROFILE_KEY),history:read(HISTORY_KEY)??[],compositions:read(EXPOSURES_KEY)??[],watchlist:read(WATCH_KEY)??[],analysis:read(ANALYSIS_KEY)??emptyAnalysis()});
 }
 /** Roll back every key on a quota/access error. Never partially replace a backup. */
 export function restoreBackupExtras(input:ReturnType<typeof parseBackup>){
- const entries=[[STORAGE_KEY,input.portfolio],[PLAN_KEY,input.plan],[PROFILE_KEY,input.profile],[HISTORY_KEY,input.history],[EXPOSURES_KEY,input.compositions],[WATCH_KEY,input.watchlist]] as const;
+ const entries=[[STORAGE_KEY,input.portfolio],[PLAN_KEY,input.plan],[PROFILE_KEY,input.profile],[HISTORY_KEY,input.history],[EXPOSURES_KEY,input.compositions],[WATCH_KEY,input.watchlist],[ANALYSIS_KEY,input.analysis]] as const;
  const old=entries.map(([key])=>[key,workspaceStorage().getItem(key)] as const);
  try{for(const [key,value] of entries)workspaceStorage().setItem(key,JSON.stringify(value));}
  catch(e){for(const [key,value] of old){try{if(value===null)workspaceStorage().removeItem(key);else workspaceStorage().setItem(key,value);}catch{}}throw e;}
