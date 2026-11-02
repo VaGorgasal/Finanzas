@@ -5,8 +5,8 @@ import { usePortfolio } from '../../context/PortfolioContext';
 export default function MercadosPage(){
   const {state}=usePortfolio();
   return <>
-    <Header eyebrow="CONTEXTO, NO RUIDO" title="Resumen diario" description="Cinco minutos para separar hechos, interpretaciones y decisiones." action={<Tag tone="amber">Ejemplos didácticos · Sin feed en directo</Tag>}/>
-    <Info tone="amber"><strong>Importante:</strong> estos tres casos son escenarios inventados, no titulares publicados el 29/10/2026. La V0.2 no consulta noticias, valores liquidativos ni cotizaciones en tiempo real.</Info>
+    <Header eyebrow="CONTEXTO, NO RUIDO" title="Mercados y contexto" description="Escenarios educativos y estado de los indicadores de mercado." action={<Tag tone="amber">Ejemplos didácticos · Sin feed en directo</Tag>}/>
+    <Info tone="amber"><strong>Importante:</strong> estos tres casos son escenarios inventados, no titulares publicados el 29/10/2026. Esta vista todavía no conecta indicadores macroeconómicos, flujos ni posicionamiento. Las cotizaciones y noticias de otras secciones son servicios separados.</Info>
     <div className="contentGrid">
       <Section className="span8" title="Noticias explicadas" extra={<Tag>Aprendizaje</Tag>}>
         <div className="storyList">{stories.map(story=><article className="storyCard" key={story.id}><div className="storyTop"><span className="storyIcon">{story.icon}</span><Tag>{story.tag}</Tag></div><h3>{story.title}</h3><div className="storyBreak"><strong>¿Qué está pasando en el ejemplo?</strong><p>{story.fact}</p></div><div className="storyBreak"><strong>¿Por qué podría importar?</strong><p>{story.meaning}</p></div><div className="storyCaution"><strong>Lo que no podemos concluir:</strong> {story.caution}</div><a className="tinyLink" href={story.reference} target="_blank" rel="noopener noreferrer">Fuente oficial para investigar: {story.referenceName} ↗</a></article>)}</div>
