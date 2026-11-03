@@ -156,6 +156,6 @@ Validación: `npm test`, `npm run lint -- --max-warnings 0`, `npm run build`, `n
 
 Mercados incorpora BCE (tipo de depósito y EUR/USD), CFTC (Managed Money en oro, cobre y WTI) y un conector SEC 13F para Soros pendiente de contacto técnico real. Fuentes, fechas, unidades y ausencias visibles; datos públicos separados de la cartera. Comparación 13F suspendida cuando hay enmiendas. No activa noticias ni IA.
 
-Activación y límites en [docs/conectores-publicos.md](docs/conectores-publicos.md); catálogo completo en [docs/fuentes-datos.md](docs/fuentes-datos.md). Se requiere `ENABLE_PUBLIC_INTELLIGENCE=true`; SEC usa `SEC_USER_AGENT` y la tarea diaria preparada usa `CRON_SECRET`. Reutiliza sesión y cuota existentes. `npm run sources:check` verifica las fuentes reales, fuera de tests y build.
+Activación y límites en [docs/conectores-publicos.md](docs/conectores-publicos.md); catálogo completo en [docs/fuentes-datos.md](docs/fuentes-datos.md). Se requiere `ENABLE_PUBLIC_INTELLIGENCE=true`; SEC usa `SEC_USER_AGENT` y la tarea diaria preparada usa `CRON_SECRET`. Reutiliza la sesión verificada y la lista de beta. Las lecturas públicas cacheadas no consumen la cuota de EODHD; cotizaciones, noticias e IA conservan su control de cuota. `npm run sources:check` verifica las fuentes reales, fuera de tests y build.
 
 No se ha publicado en producción. La tarea diaria de `vercel.json` solo se activará al desplegar expresamente; no hay un histórico permanente de revisiones en base de datos.

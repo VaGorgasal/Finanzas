@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {
-  requireAccess,
+  requireSession,
   serviceFailure,
   ServiceError,
 } from "../../../lib/server-access.ts";
@@ -17,7 +17,7 @@ export async function GET(request: Request) {
       );
     const data = await intelligenceQuery({
       enabled: process.env.ENABLE_PUBLIC_INTELLIGENCE === "true",
-      authorize: () => requireAccess(request, "market"),
+      authorize: () => requireSession(request),
       load: loadIntelligence,
     });
     return NextResponse.json(data, {

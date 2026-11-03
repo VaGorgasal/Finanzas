@@ -18,7 +18,7 @@ No se buscan tickers por nombres ni se atribuyen estas posiciones a la cartera d
 | `SEC_USER_AGENT` | Nombre de aplicación y correo técnico real, ASCII, sin saltos de línea. No usar ejemplos ni dominios inventados. Si falta, solo SEC queda pendiente. No es una API key. |
 | `CRON_SECRET` | Secreto aleatorio de al menos 24 caracteres para la tarea diaria. Generarlo y guardarlo directamente como secreto del entorno; nunca en git ni en el navegador. |
 
-`/api/intelligence` exige además los servicios y la sesión no anónima existentes (`ENABLE_REMOTE_FEATURES`, configuración Supabase y cuota `market`). Primero se autoriza la sesión; después se consulta la caché pública. No ampliar permisos ni desactivar autenticación para probar una preview.
+`/api/intelligence` exige además los servicios y la sesión no anónima existentes (`ENABLE_REMOTE_FEATURES` y configuración Supabase). Conserva la lista de usuarios de beta. Primero se verifica el token en Supabase Auth; después se consulta la caché pública. Estas lecturas de datos oficiales no consumen la cuota de cotizaciones EODHD: el refresco automático agotaría su límite global de 15 consultas diarias. Cotizaciones, noticias e IA siguen usando la misma cuota persistente y fallan si no se puede comprobar. No ampliar permisos ni desactivar autenticación para probar una preview.
 
 Configurar primero un entorno de pruebas aislado. Esta rama hereda copias completas v4 del motor de KPI: no iniciar sesión con cuentas reales en previews que compartan los datos de producción con clientes antiguos. Ninguna variable nueva lleva `NEXT_PUBLIC_`.
 
