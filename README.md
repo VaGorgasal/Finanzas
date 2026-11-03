@@ -1,4 +1,4 @@
-# Brújula Financiera · V0.9.0-dev
+# Brújula Financiera · V0.9.1-dev
 
 Aplicación Next.js para registrar inversiones, entender sus resultados y planificar objetivos. La cartera personal comienza vacía. No ejecuta órdenes ni se conecta a cuentas bancarias.
 
@@ -152,3 +152,10 @@ Nueva ruta `/analisis` y seis prioridades en Inicio. Rentabilidad contable y TIR
 [Metodología, formato, trazabilidad y límites](src/lib/kpi/README.md). La copia completa v4 conserva análisis y lee v1–v3; no usar clientes antiguos para editar estas copias. La primera entrega no implementa los conectores macro/fundamentales ni el informativo automático de Noticias: pertenecen al bloque siguiente. Rama `feature/portfolio-kpis`, revisión mediante PR; no se publica automáticamente en producción.
 
 Validación: `npm test`, `npm run lint -- --max-warnings 0`, `npm run build`, `npm run typecheck`. Nuevas pruebas en `tests/kpi.test.mjs` con datos ficticios aislados del producto. Sin cambios al motor contable ni políticas RLS.
+# Conectores públicos · 0.9.1-dev (rama de desarrollo)
+
+Mercados incorpora BCE (tipo de depósito y EUR/USD), CFTC (Managed Money en oro, cobre y WTI) y un conector SEC 13F para Soros pendiente de contacto técnico real. Fuentes, fechas, unidades y ausencias visibles; datos públicos separados de la cartera. Comparación 13F suspendida cuando hay enmiendas. No activa noticias ni IA.
+
+Activación y límites en [docs/conectores-publicos.md](docs/conectores-publicos.md); catálogo completo en [docs/fuentes-datos.md](docs/fuentes-datos.md). Se requiere `ENABLE_PUBLIC_INTELLIGENCE=true`; SEC usa `SEC_USER_AGENT` y la tarea diaria preparada usa `CRON_SECRET`. Reutiliza sesión y cuota existentes. `npm run sources:check` verifica las fuentes reales, fuera de tests y build.
+
+No se ha publicado en producción. La tarea diaria de `vercel.json` solo se activará al desplegar expresamente; no hay un histórico permanente de revisiones en base de datos.

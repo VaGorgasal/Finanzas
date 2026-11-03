@@ -1,16 +1,33 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import './design.css';
-import './interior.css';
-import './kpi.css';
-import { AccountProvider } from '../context/AccountContext';
-import { Shell } from '../components/Shell';
+import type { Metadata } from "next";
+import "./globals.css";
+import "./design.css";
+import "./interior.css";
+import "./kpi.css";
+import "./intelligence.css";
+import { AccountProvider } from "../context/AccountContext";
+import { Shell } from "../components/Shell";
+import { IntelligenceProvider } from "../context/IntelligenceContext";
 export const metadata: Metadata = {
-  title:'Brújula Financiera — Aprende a invertir',
-  description:'Tu patrimonio, tu cartera y tus objetivos. Un espacio personal para darle perspectiva a tu dinero.',
-  icons:{icon:'/icon.svg'},
-  robots:{index:false,follow:false},
+  title: "Brújula Financiera — Aprende a invertir",
+  description:
+    "Tu patrimonio, tu cartera y tus objetivos. Un espacio personal para darle perspectiva a tu dinero.",
+  icons: { icon: "/icon.svg" },
+  robots: { index: false, follow: false },
 };
-export default function RootLayout({children}:{children:React.ReactNode}) {
-  return <html lang="es" data-scroll-behavior="smooth"><body><AccountProvider><Shell>{children}</Shell></AccountProvider></body></html>;
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="es" data-scroll-behavior="smooth">
+      <body>
+        <AccountProvider>
+          <IntelligenceProvider>
+            <Shell>{children}</Shell>
+          </IntelligenceProvider>
+        </AccountProvider>
+      </body>
+    </html>
+  );
 }
