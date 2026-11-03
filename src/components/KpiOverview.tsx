@@ -5,11 +5,15 @@ import { useFinancialPlan } from "../context/useFinancialPlan";
 import { useAnalysis } from "../context/useAnalysis";
 import { analyzeKpis } from "../lib/kpi/engine.ts";
 import { eur, nfmt, pct } from "../lib/portfolio.ts";
+import { useIntelligence } from "../context/IntelligenceContext";
 export function KpiOverview() {
   const { state, ready } = usePortfolio(),
     { plan } = useFinancialPlan(),
     { data, compositions, ready: loaded } = useAnalysis();
   const k = analyzeKpis(state, data, compositions, plan);
+  const { data: market } = useIntelligence();
+  const rate = market?.ecbRate.data?.points.at(-1),
+    cot = market?.cot.data;
   const cards = [
     {
       title: "Rentabilidad",
@@ -39,15 +43,26 @@ export function KpiOverview() {
     },
     {
       title: "Condiciones de mercado",
-      value: "Fuente pendiente",
-      detail: "Segunda entrega · indicadores macroeconómicos",
-      href: "/mercados",
+      value: rate ? nfmt(rate.value, 2) + " % BCE" : "Consultar fuentes",
+      detail: rate
+        ? "Observado " +
+          rate.date +
+          " · " +
+          (market?.ecbRate.status === "stale"
+            ? "Revisar fecha"
+            : "Tipo de depósito")
+        : "Tipos y divisas · fuentes oficiales",
+      href: "/mercados#macro",
     },
     {
       title: "Flujos y posicionamiento",
-      value: "Sin datos conectados",
-      detail: "Segunda entrega · COT, flujos y declaraciones 13F",
-      href: "/mercados",
+      value: cot
+        ? cot.markets.length + " contratos COT"
+        : "Consultar posicionamiento",
+      detail: cot
+        ? "Ver fechas por contrato · Flujos ETF pendientes"
+        : "COT y 13F · Flujos ETF pendientes",
+      href: "/mercados#posicionamiento",
     },
     {
       title: "Liquidez y objetivos",
