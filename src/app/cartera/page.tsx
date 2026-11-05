@@ -28,6 +28,7 @@ export default function CarteraPage(){
   const unpriced = !state.demoMode && summary.holdings.some(h=>h.units>0 && h.instrument.quoteSource==='demo');
   const [view,setView]=useState('positions');
   useEffect(()=>{const sync=()=>{if(window.location.hash==='#operaciones')setView('operations');else if(window.location.hash==='#productos')setView('positions');else if(window.location.hash==='#datos')setView('data');else if(window.location.hash==='#efectivo')setView('operations');};sync();window.addEventListener('hashchange',sync);return ()=>window.removeEventListener('hashchange',sync);},[]);
+  const [initialInstrumentId,setInitialInstrumentId]=useState<string|undefined>();
   const [editing,setEditing]=useState<Transaction|null>(null);
   const [showForm,setShowForm]=useState(false);
   const [showAssetForm,setShowAssetForm]=useState(false);
@@ -67,8 +68,8 @@ export default function CarteraPage(){
         <p className="hint">Precios por participación en euros, con fuente y fecha. Para incorporar el valor de tus inversiones, registra sus compras en Operaciones.</p>
       </Section>
       </div>}
-      {view==='operations'&&<div className="span12" id="operaciones"><Section className="span12" title="Operaciones" extra={!state.demoMode?<button className="primaryButton" disabled={!state.instruments.length} onClick={()=>{setEditing(null);setShowForm(x=>!x);}}>{showForm?'Cerrar formulario':'＋ Nueva operación'}</button>:<Tag>Exploración sin edición</Tag>}>
-        {showForm&&!state.demoMode&&<div className="formInset"><h3>{editing?'Editar operación':'Registrar una operación'}</h3><TransactionForm key={editing?.id??'new'} editing={editing} onDone={()=>{setShowForm(false);setEditing(null);setStatus('Operación guardada.');}}/></div>}
+      {view==='operations'&&<div className="span12" id="operaciones"><Section className="span12" title="Operaciones" extra={!state.demoMode?<button className="primaryButton" disabled={!state.instruments.length} onClick={()=>{setEditing(null);setInitialInstrumentId(undefined);setShowForm(x=>!x);}}>{showForm?'Cerrar formulario':'＋ Nueva operación'}</button>:<Tag>Exploración sin edición</Tag>}>
+        {showForm&&!state.demoMode&&<div className="formInset"><h3>{editing?'Editar operación':'Registrar una operación'}</h3><TransactionForm key={editing?.id??initialInstrumentId??'new'} editing={editing} initialInstrumentId={initialInstrumentId} onDone={()=>{setShowForm(false);setEditing(null);setStatus('Operación guardada.');}}/></div>}
         {status&&<p role="status" className="statusMsg">{status} <button className="textButton" onClick={()=>setStatus('')}>Cerrar</button></p>}
         <div className="assetTableWrap"><table className="dataTable"><thead><tr><th>Fecha</th><th>Producto</th><th>Movimiento</th><th>Importe</th><th>Participaciones</th><th>Comisión</th><th/></tr></thead><tbody>
           {sortedTransactions(state.transactions).reverse().map(tx=>{const asset=state.instruments.find(x=>x.id===tx.instrumentId);
@@ -98,7 +99,7 @@ export default function CarteraPage(){
     </div>
     <dialog ref={assetDialog} className="productDialog" aria-labelledby="product-dialog-title" onClose={()=>setShowAssetForm(false)}>
       <div className="productDialogHeading"><div><span className="eyebrow">AMPLÍA TU CARTERA</span><h2 id="product-dialog-title">Añadir producto</h2></div><button type="button" className="textButton" aria-label="Cerrar nuevo producto" onClick={()=>assetDialog.current?.close()}>✕</button></div>
-      {showAssetForm&&!state.demoMode&&<InstrumentForm onDone={asset=>{assetDialog.current?.close();changeView('positions');setStatus(asset.name+' añadido. Registra tu compra desde Operaciones para incorporar las participaciones.');}}/>}
+      {showAssetForm&&!state.demoMode&&<InstrumentForm onDone={asset=>{assetDialog.current?.close();setEditing(null);setInitialInstrumentId(asset.id);setShowForm(true);changeView('operations');setStatus(asset.name+' añadido. Registra ahora el importe y el precio de tu compra.');}}/>}
     </dialog>
   </>;
 }
