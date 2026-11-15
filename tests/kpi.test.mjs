@@ -604,3 +604,12 @@ test("compara correlaciones entre ventanas completas no solapadas", () => {
   near(c.current, -1);
   near(c.delta, -2);
 });
+
+test('weekly observations cannot masquerade as daily risk statistics',()=>{
+ const weekly=baseSeries({points:Array.from({length:61},(_,i)=>({date:new Date(Date.UTC(2025,0,1+i*7)).toISOString().slice(0,10),value:100+i%2}))});
+ assert.equal(volatility(weekly,30),null);assert.equal(correlation(weekly,weekly,30),null);assert.equal(riskContributions([weekly],[1],30),null);assert.equal(periodReturns(weekly).daily,null);
+});
+test('recent metadata does not hide stale last observation',()=>{
+ const s=state(),data=emptyAnalysis();data.portfolioSignature=ledgerSignature(s);data.series=[baseSeries({asOf:'2026-11-01',updatedAt:'2026-11-01',points:[{date:'2025-07-29',value:100},{date:'2025-07-30',value:101}]})];
+ const r=analyzeKpis(s,parseAnalysis(data),[],emptyPlan(),'2026-11-02',30);assert.ok(r.alerts.some(a=>a.id==='old-data'&&a.affected.includes('Serie de prueba')));
+});

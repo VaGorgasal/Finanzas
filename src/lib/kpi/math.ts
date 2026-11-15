@@ -33,13 +33,18 @@ export function totalReturn(points: Point[]) {
 }
 const ms = (date: string) => Date.parse(date + "T00:00:00Z");
 const days = (a: string, b: string) => (ms(b) - ms(a)) / 86400000;
+/** Conservative cadence check, not a complete exchange holiday calendar. */
+export function hasDailyCadence(r: ReturnPoint[]): boolean {
+  const gaps=r.map(p=>days(p.from,p.date));
+  return gaps.length>0 && gaps.every(g=>g>0&&g<=4) && gaps.filter(g=>g===1).length/gaps.length>=0.6;
+}
 export function dailyWindow(
   series: Series,
   window: number,
 ): ReturnPoint[] | null {
   if (![30, 90, 252].includes(window)) return null;
   const r = returns(series.points).slice(-window);
-  return r.length === window && r.every((p) => days(p.from, p.date) <= 7)
+  return r.length === window && hasDailyCadence(r)
     ? r
     : null;
 }
@@ -55,11 +60,12 @@ export function volatility(series: Series, window: number) {
   return v === null ? null : Math.sqrt(v * 252);
 }
 export function rollingVolatility(series: Series, window: number): Point[] {
+  if (![30,90,252].includes(window)) return [];
   const r = returns(series.points),
     out: Point[] = [];
   for (let i = window; i <= r.length; i++) {
     const sample = r.slice(i - window, i);
-    if (sample.every((p) => days(p.from, p.date) <= 7)) {
+    if (hasDailyCadence(sample)) {
       const v = variance(sample.map((p) => p.value));
       if (v !== null)
         out.push({ date: sample.at(-1)!.date, value: Math.sqrt(v * 252) });
@@ -139,7 +145,7 @@ export function periodReturns(series: Series) {
   const previous = p.at(-2);
   return {
     daily:
-      previous && days(previous.date, last.date) <= 7
+      previous && hasDailyCadence(returns(p).slice(-30)) && days(previous.date, last.date) <= 4
         ? {
             from: previous.date,
             to: last.date,
@@ -189,6 +195,8 @@ export function alignedReturns(
     .filter((k) => maps.every((m) => m.has(k)))
     .slice(-window * multiple);
   if (keys.length < window * multiple) return null;
+  const intervals=keys.map(k=>{const [from,date]=k.split("|");return {from,date,value:0};});
+  if(!hasDailyCadence(intervals)||intervals.some((p,i)=>i>0&&p.from!==intervals[i-1].date)) return null;
   return { keys, values: maps.map((m) => keys.map((k) => m.get(k)!)) };
 }
 export function covariance(a: number[], b: number[]) {
