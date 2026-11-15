@@ -301,7 +301,7 @@ export function analyzeKpis(
     ...data.series
       .filter(
         (s) =>
-          (Date.parse(today) - Date.parse(s.asOf)) / 86400000 >
+          (Date.parse(today) - Date.parse(s.points.at(-1)!.date)) / 86400000 >
           rules.priceStaleDays,
       )
       .map((s) => s.name),

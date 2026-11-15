@@ -159,3 +159,12 @@ Mercados incorpora BCE (tipo de depósito y EUR/USD), CFTC (Managed Money en oro
 Activación y límites en [docs/conectores-publicos.md](docs/conectores-publicos.md); catálogo completo en [docs/fuentes-datos.md](docs/fuentes-datos.md). Se requiere `ENABLE_PUBLIC_INTELLIGENCE=true`; SEC usa `SEC_USER_AGENT` y la tarea diaria preparada usa `CRON_SECRET`. Reutiliza la sesión verificada y la lista de beta. Las lecturas públicas cacheadas no consumen la cuota de EODHD; cotizaciones, noticias e IA conservan su control de cuota. `npm run sources:check` verifica las fuentes reales, fuera de tests y build.
 
 No se ha publicado en producción. La tarea diaria de `vercel.json` solo se activará al desplegar expresamente; no hay un histórico permanente de revisiones en base de datos.
+
+### Laboratorio y fiscalidad (rama en revisión)
+
+`/estrategias` compara operaciones hipotéticas con mantener y conserva versiones
+de tesis, sin modificar la cartera real. `/fiscalidad` reconstruye FIFO y estima
+cuota del ahorro 2025–2026 cuando los datos y evidencias son suficientes.
+El coste medio económico se mantiene. Copias v5 compatibles al leer v1–v4;
+actualizar todos los clientes antes de usar perfiles reales.
+[Alcance, fuentes, límites y roadmap](docs/estrategias-fiscalidad.md).

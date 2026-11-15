@@ -4,10 +4,10 @@ import {lookupQuotes,type MarketQuote} from '../lib/market.ts';
 import {instrumentFromQuote,selectProductQuote} from '../lib/instrument-lookup.ts';
 import {usePortfolio} from '../context/PortfolioContext';
 import {eur,todayIso} from '../lib/portfolio.ts';
-import type {AssetCategory,AssetKind,Instrument} from '../lib/types.ts';
+import type {AssetCategory,AssetKind,Instrument,PortfolioState} from '../lib/types.ts';
 type Lookup={isin:string;phase:'loading'|'done'|'error';quotes:MarketQuote[];error:string};
-export function InstrumentForm({onDone}:{onDone:(asset:Instrument)=>void}){
- const {addInstrument,state}=usePortfolio();
+export function InstrumentForm({onDone,portfolio,saveInstrument}:{onDone:(asset:Instrument)=>void;portfolio?:PortfolioState;saveInstrument?:(asset:Instrument)=>{ok:true}|{ok:false;error:string}}){
+ const context=usePortfolio();const state=portfolio??context.state,addInstrument=saveInstrument??context.addInstrument;
  const [isin,setIsin]=useState(''),[manual,setManual]=useState(false),[lookup,setLookup]=useState<Lookup|null>(null),[symbol,setSymbol]=useState(''),[retry,setRetry]=useState(0);
  const [name,setName]=useState(''),[kind,setKind]=useState<AssetKind>('fondo'),[category,setCategory]=useState<AssetCategory>('otro'),[price,setPrice]=useState(''),[day,setDay]=useState(todayIso()),[error,setError]=useState('');
  const input=useRef<HTMLInputElement>(null);const normalized=isin.trim().toUpperCase(),valid=/^[A-Z]{2}[A-Z0-9]{10}$/.test(normalized);
